@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="pt-BR"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>HS Visual | CRM Command Center</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&amp;family=Urbanist:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary-container": "#72b21d",
+                        "outline": "#757575",
+                        "on-secondary-fixed": "#3c4300",
+                        "tertiary-fixed": "#5cf7e5",
+                        "error-container": "#b92902",
+                        "primary-dim": "#9cdf4a",
+                        "secondary": "#dbed63",
+                        "outline-variant": "#484848",
+                        "tertiary": "#9ffff1",
+                        "error-dim": "#d53d18",
+                        "secondary-fixed": "#dbed63",
+                        "on-error-container": "#ffd2c8",
+                        "on-background": "#ffffff",
+                        "surface": "#0e0e0e",
+                        "on-primary": "#325600",
+                        "on-secondary-fixed-variant": "#566100",
+                        "primary-fixed": "#a9ee57",
+                        "inverse-primary": "#406a00",
+                        "surface-container-lowest": "#000000",
+                        "error": "#ff7351",
+                        "on-primary-fixed-variant": "#396000",
+                        "inverse-surface": "#f9f9f9",
+                        "surface-container-high": "#1f1f1f",
+                        "surface-variant": "#262626",
+                        "secondary-container": "#596400",
+                        "on-surface-variant": "#ababab",
+                        "on-secondary-container": "#f4ffa6",
+                        "on-primary-container": "#152800",
+                        "on-tertiary-fixed": "#00463f",
+                        "on-error": "#450900",
+                        "surface-container-low": "#131313",
+                        "on-tertiary": "#00645b",
+                        "surface-bright": "#2c2c2c",
+                        "surface-container": "#191919",
+                        "surface-container-highest": "#262626",
+                        "primary-fixed-dim": "#9cdf4a",
+                        "inverse-on-surface": "#555555",
+                        "tertiary-dim": "#45e5d4",
+                        "surface-tint": "#a9ee57",
+                        "surface-dim": "#0e0e0e",
+                        "background": "#0e0e0e",
+                        "on-tertiary-container": "#005a52",
+                        "tertiary-container": "#5cf7e5",
+                        "tertiary-fixed-dim": "#49e8d7",
+                        "secondary-fixed-dim": "#cdde56",
+                        "on-secondary": "#4d5700",
+                        "on-tertiary-fixed-variant": "#00655c",
+                        "secondary-dim": "#cdde56",
+                        "on-surface": "#ffffff",
+                        "on-primary-fixed": "#254100",
+                        "primary": "#a9ee57"
+                    },
+                    fontFamily: {
+                        "headline": ["Urbanist", "sans-serif"],
+                        "body": ["Urbanist", "sans-serif"],
+                        "label": ["Urbanist", "sans-serif"],
+                        "plus-jakarta": ["Plus Jakarta Sans", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "1rem",
+                        "lg": "2rem",
+                        "xl": "3rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            background-color: #000000;
+            color: #ffffff;
+            font-family: 'Urbanist', sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .aura-glass {
+            background: rgba(38, 38, 38, 0.4);
+            backdrop-filter: blur(24px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .glow-primary {
+            box-shadow: 0 0 40px rgba(185, 255, 102, 0.08);
+        }
+        .glow-tertiary {
+            box-shadow: 0 0 30px rgba(102, 255, 237, 0.12);
+        }
+        .neon-text-primary {
+            text-shadow: 0 0 10px rgba(185, 255, 102, 0.3);
+        }
+        /* Tooltip styling */
+        .nav-tooltip {
+            visibility: hidden;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .nav-item:hover .nav-tooltip {
+            visibility: visible;
+            opacity: 1;
+        }
+    </style>
+</head>
+<body class="min-h-screen pb-32 md:pb-0 md:pl-20">
+<!-- Top Alert Bar -->
+<div class="fixed top-0 left-0 right-0 z-[60] bg-[#ff4d4d]/10 backdrop-blur-md border-b border-[#ff4d4d]/20 px-6 py-2 flex items-center justify-between text-[11px] font-bold tracking-widest uppercase">
+<div class="flex items-center gap-2 text-[#ff4d4d]">
+<span class="material-symbols-outlined text-[14px]" data-icon="error">error</span>
+<span>Silvia Pires: Vencimento em 48h</span>
+</div>
+<a class="bg-primary text-black px-4 py-1 rounded-full text-[9px] hover:scale-105 transition-transform flex items-center gap-1" href="https://wa.me/?text=Olá%20Silvia,%20Hélder%20aqui!%20Passando%20para%20avisar%20que%20sua%20mensalidade%20da%20HS%20Visual%20vence%20em%20breve.%20Segue%20o%20link%20para%20facilitar!" target="_blank">
+<span class="material-symbols-outlined text-[12px]" data-icon="payments">payments</span>
+            COBRAR AGORA
+        </a>
+</div>
+<!-- Minimalist Sidebar (Desktop) -->
+<nav class="hidden md:flex fixed left-0 top-0 h-full w-20 flex-col items-center py-10 bg-black/40 backdrop-blur-xl border-r border-white/5 z-50">
+<div class="mb-12">
+<div class="w-10 h-10 rounded-full overflow-hidden border border-primary/20">
+<img alt="Avatar" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAn2625kJrULX793RnJOleNAbtQJ-e-WsL1Yr_ZB5-cbIgXJ2E0jZqZYtr-XwUzmkaRJyUXoOmyMEUuE0QvFAOOIs3h96oMfufqCaQaXNqxo46awQgMNMOUDBdITfE7KoyLdSnhpuCLGa5z6rlsWY_7lopXswW0dyiKYhPsbMD1mMPLAYrKL3diiRb0cgMuXnQ4hNAixgltqJUeCfTjjoo7b1uZ9SrQqelBBYynEOjdLjSdyk1JaX93i8qARlTraHIMwdQd0yOyotk"/>
+</div>
+</div>
+<div class="flex flex-col gap-8">
+<div class="nav-item relative group cursor-pointer flex justify-center">
+<span class="text-2xl transition-transform group-hover:scale-125">🟢</span>
+<span class="nav-tooltip absolute left-16 bg-white/10 backdrop-blur-lg px-3 py-1 rounded text-[10px] font-bold uppercase tracking-widest text-white whitespace-nowrap">Painel</span>
+</div>
+<div class="nav-item relative group cursor-pointer flex justify-center">
+<span class="text-2xl transition-transform group-hover:scale-125">🧠</span>
+<span class="nav-tooltip absolute left-16 bg-white/10 backdrop-blur-lg px-3 py-1 rounded text-[10px] font-bold uppercase tracking-widest text-white whitespace-nowrap">IA/Leads</span>
+</div>
+<div class="nav-item relative group cursor-pointer flex justify-center">
+<span class="text-2xl transition-transform group-hover:scale-125">💰</span>
+<span class="nav-tooltip absolute left-16 bg-white/10 backdrop-blur-lg px-3 py-1 rounded text-[10px] font-bold uppercase tracking-widest text-white whitespace-nowrap">Financeiro</span>
+</div>
+<div class="nav-item relative group cursor-pointer flex justify-center">
+<span class="text-2xl transition-transform group-hover:scale-125">⚙️</span>
+<span class="nav-tooltip absolute left-16 bg-white/10 backdrop-blur-lg px-3 py-1 rounded text-[10px] font-bold uppercase tracking-widest text-white whitespace-nowrap">Setup</span>
+</div>
+</div>
+</nav>
+<!-- Top Bar (Mobile Only Logo) -->
+<header class="md:hidden fixed top-8 w-full flex justify-between items-center px-6 py-4 bg-black/40 backdrop-blur-xl z-50">
+<div class="flex items-center gap-3">
+<span class="text-xl font-bold text-[#B9FF66] tracking-tight font-plus-jakarta">HS Visual</span>
+</div>
+<button class="material-symbols-outlined text-white/60" data-icon="account_circle">account_circle</button>
+</header>
+<main class="pt-24 md:pt-20 px-6 max-w-7xl mx-auto space-y-12">
+<!-- Header Metrics -->
+<section class="grid grid-cols-1 md:grid-cols-3 gap-6">
+<div class="aura-glass p-8 rounded-xl flex flex-col justify-between min-h-[180px] group hover:border-primary/30 transition-all duration-500">
+<span class="text-white/40 text-[10px] uppercase tracking-[0.2em] font-bold">Valor em Negociação</span>
+<div class="mt-4">
+<h2 class="text-display-md font-extrabold tracking-tighter text-white font-plus-jakarta">R$ 142.850</h2>
+<div class="flex items-center gap-2 mt-2">
+<span class="material-symbols-outlined text-primary text-sm" data-icon="trending_up">trending_up</span>
+<span class="text-primary text-xs font-bold">+12.5% este mês</span>
+</div>
+</div>
+</div>
+<div class="aura-glass p-8 rounded-xl flex flex-col justify-between min-h-[180px] group hover:border-tertiary/30 transition-all duration-500">
+<span class="text-white/40 text-[10px] uppercase tracking-[0.2em] font-bold">Total de Clientes</span>
+<div class="mt-4">
+<h2 class="text-display-md font-extrabold tracking-tighter text-white font-plus-jakarta">84</h2>
+<div class="flex items-center gap-2 mt-2 text-white/40 text-xs">
+<span class="material-symbols-outlined text-sm" data-icon="group">group</span>
+<span>12 leads novos aguardando</span>
+</div>
+</div>
+</div>
+<div class="aura-glass p-8 rounded-xl flex flex-col justify-between min-h-[180px] border-l-2 border-l-tertiary/20 group hover:border-tertiary/50 transition-all duration-500">
+<span class="text-white/40 text-[10px] uppercase tracking-[0.2em] font-bold">Lucro/Investimento (ROI)</span>
+<div class="mt-4">
+<h2 class="text-display-md font-extrabold tracking-tighter text-tertiary font-plus-jakarta">5.8x</h2>
+<div class="flex items-center gap-2 mt-2">
+<span class="material-symbols-outlined text-tertiary text-sm" data-icon="insights">insights</span>
+<span class="text-tertiary text-xs font-bold">Performance Otimizada</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Main Content Area -->
+<section class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+<!-- Left Column: Opportunities List -->
+<div class="lg:col-span-8 space-y-6">
+<div class="flex justify-between items-end mb-4">
+<h3 class="text-headline-lg font-bold tracking-tight">Oportunidades</h3>
+<button class="text-primary text-xs font-bold uppercase tracking-widest hover:underline">Ver Todos</button>
+</div>
+<div class="space-y-4">
+<div class="aura-glass p-6 rounded-xl flex items-center justify-between border-l-4 border-l-tertiary glow-tertiary">
+<div class="flex items-center gap-6">
+<div class="w-14 h-14 rounded-full bg-surface-container-high flex items-center justify-center border border-white/5">
+<span class="material-symbols-outlined text-tertiary text-2xl" data-icon="ads_click">ads_click</span>
+</div>
+<div>
+<h4 class="text-lg font-bold">Ricardo Alcantara</h4>
+<div class="flex items-center gap-3 mt-1">
+<span class="text-[10px] bg-white/5 px-2 py-0.5 rounded text-white/60 font-bold tracking-widest uppercase">Meta Ads</span>
+<span class="text-[10px] text-tertiary font-bold flex items-center gap-1">
+<span class="material-symbols-outlined text-[12px]" data-icon="bolt">bolt</span> SMART FOLLOW-UP
+                                    </span>
+</div>
+</div>
+</div>
+<div class="text-right">
+<p class="text-sm font-bold">R$ 12.500</p>
+<p class="text-[10px] text-error font-medium mt-1">Parado há 26h</p>
+</div>
+</div>
+<div class="aura-glass p-6 rounded-xl flex items-center justify-between group hover:bg-white/5 transition-colors">
+<div class="flex items-center gap-6">
+<div class="w-14 h-14 rounded-full bg-surface-container-high flex items-center justify-center border border-white/5">
+<span class="material-symbols-outlined text-primary text-2xl" data-icon="search">search</span>
+</div>
+<div>
+<h4 class="text-lg font-bold">Imobiliária Prime</h4>
+<div class="flex items-center gap-3 mt-1">
+<span class="text-[10px] bg-white/5 px-2 py-0.5 rounded text-white/60 font-bold tracking-widest uppercase">Google Ads</span>
+<span class="text-[10px] text-white/40 font-bold uppercase tracking-widest">Negociação</span>
+</div>
+</div>
+</div>
+<div class="text-right">
+<p class="text-sm font-bold">R$ 45.000</p>
+<p class="text-[10px] text-white/40 font-medium mt-1">Atualizado hoje</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Right Column -->
+<div class="lg:col-span-4 space-y-8">
+<div class="aura-glass rounded-xl overflow-hidden p-8 border-t border-t-primary/20 glow-primary">
+<div class="flex items-center gap-3 mb-6">
+<span class="material-symbols-outlined text-primary" data-icon="auto_awesome">auto_awesome</span>
+<h3 class="text-sm font-bold uppercase tracking-[0.2em]">Insights de IA</h3>
+</div>
+<p class="text-white/80 leading-relaxed text-sm">
+                        Detectamos uma queda de <span class="text-primary font-bold">14% na taxa de resposta</span> em leads de Google Ads. Recomendamos ajustar o script de abordagem inicial para o nicho imobiliário.
+                    </p>
+<button class="mt-8 w-full py-4 rounded-full border border-primary/30 text-primary text-[10px] font-bold uppercase tracking-widest hover:bg-primary/10 transition-all">
+                        Analisar e Reverter
+                    </button>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="relative w-full py-12 flex flex-col items-center gap-2 text-center px-8 mt-12">
+<div class="flex items-center gap-4 mb-2">
+<span class="text-white font-bold tracking-tight">HS Visual</span>
+<span class="text-white/20">|</span>
+<a class="text-[#66FFED] underline font-plus-jakarta text-[10px] uppercase tracking-widest" href="https://hsvisual.com">hsvisual.com</a>
+</div>
+<p class="font-plus-jakarta text-[10px] uppercase tracking-widest opacity-40 text-white/40">
+            HS Visual | CNPJ: 52.672.332/0001-16
+        </p>
+</footer>
+<!-- Bottom Nav (Mobile) -->
+<nav class="md:hidden fixed bottom-0 left-0 w-full flex justify-around items-center px-4 pb-6 pt-3 bg-black/60 backdrop-blur-2xl z-50 rounded-t-[32px] shadow-[0_-4px_40px_rgba(185,255,102,0.05)] border-t border-white/5">
+<a class="flex flex-col items-center justify-center p-2" href="#">
+<span class="text-xl">🟢</span>
+<span class="text-[8px] font-bold uppercase tracking-widest mt-1 text-primary">Painel</span>
+</a>
+<a class="flex flex-col items-center justify-center p-2" href="#">
+<span class="text-xl">🧠</span>
+<span class="text-[8px] font-bold uppercase tracking-widest mt-1 text-white/40">IA/Leads</span>
+</a>
+<a class="flex flex-col items-center justify-center p-2" href="#">
+<span class="text-xl">💰</span>
+<span class="text-[8px] font-bold uppercase tracking-widest mt-1 text-white/40">Financeiro</span>
+</a>
+<a class="flex flex-col items-center justify-center p-2" href="#">
+<span class="text-xl">⚙️</span>
+<span class="text-[8px] font-bold uppercase tracking-widest mt-1 text-white/40">Setup</span>
+</a>
+</nav>
+<!-- Floating Action Button (Mobile Only) -->
+<button class="md:hidden fixed bottom-24 right-6 w-14 h-14 bg-primary rounded-full shadow-lg flex items-center justify-center text-black active:scale-90 transition-transform z-40">
+<span class="material-symbols-outlined font-bold" data-icon="add">add</span>
+</button>
+</body></html>
