@@ -10,15 +10,23 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
 
   useEffect(() => {
+    // Timeout para evitar "tela preta" infinita
+    const timeout = setTimeout(() => {
+      if (isAuthenticated === null) {
+        console.warn('Timeout de autenticação atingido. Redirecionando para login.');
+        setIsAuthenticated(false);
+      }
+    }, 3500);
+
     // Quick local session check
     supabase.auth.getSession().then(({ data: { session } }) => {
       // Temporarily allowing access if user hasn't configured Supabase yet
-      // so they don't get completely locked out of their own UI right now
       if (!import.meta.env.VITE_SUPABASE_URL) {
         setIsAuthenticated(true);
       } else {
         setIsAuthenticated(!!session);
       }
+      clearTimeout(timeout);
     });
 
     const {
@@ -27,9 +35,13 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
       if (import.meta.env.VITE_SUPABASE_URL) {
         setIsAuthenticated(!!session);
       }
+      clearTimeout(timeout);
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      subscription.unsubscribe();
+      clearTimeout(timeout);
+    };
   }, []);
 
   if (isAuthenticated === null) {
