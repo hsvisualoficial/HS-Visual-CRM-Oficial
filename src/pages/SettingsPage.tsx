@@ -3,8 +3,10 @@ import { Sidebar } from '../components/Sidebar';
 import { MobileNav } from '../components/MobileNav';
 import { supabase } from '../lib/supabase';
 import { motion } from 'framer-motion';
+import { useAppContext } from '../context/AppContext';
 
 export const SettingsPage: React.FC = () => {
+  const { refresh } = useAppContext();
   const [showApiKey, setShowApiKey] = useState(false);
   const [showDbKey, setShowDbKey] = useState(false);
 
@@ -114,6 +116,8 @@ export const SettingsPage: React.FC = () => {
 
       if (error) throw error;
       setSaveStatus('success');
+      // Propaga mudanças instantaneamente para Sidebar e Topbar
+      await refresh();
       setTimeout(() => setSaveStatus('idle'), 3000);
     } catch (err) {
       console.error(err);

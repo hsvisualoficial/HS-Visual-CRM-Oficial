@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase';
-import { useSettings } from '../hooks/useSettings';
+import { useAppContext } from '../context/AppContext';
 
 export const Topbar: React.FC<{ title: string; subtitle?: string }> = ({ title, subtitle }) => {
   const [hasUpcoming, setHasUpcoming] = useState(false);
   const [count, setCount] = useState(0);
-  const { settings } = useSettings();
+  const { settings } = useAppContext();
 
   useEffect(() => {
     const checkUpcoming = async () => {
@@ -32,10 +32,16 @@ export const Topbar: React.FC<{ title: string; subtitle?: string }> = ({ title, 
       .on('postgres_changes', { event: '*', schema: 'public', table: 'financeiro' }, checkUpcoming)
       .subscribe();
 
-    return () => {
-      supabase.removeChannel(channel);
-    };
+    return () => { supabase.removeChannel(channel); };
   }, []);
+
+  // Iniciais do nome como fallback do avatar
+  const initials = settings.agency_name
+    .split(' ')
+    .slice(0, 2)
+    .map(w => w[0])
+    .join('')
+    .toUpperCase() || 'HS';
 
   return (
     <header className="flex flex-col md:flex-row md:items-center justify-between gap-6 border-b border-white/5 pb-8 mb-10">
@@ -45,7 +51,7 @@ export const Topbar: React.FC<{ title: string; subtitle?: string }> = ({ title, 
       </div>
       
       <div className="flex items-center gap-6">
-        {/* Notification Bell */}
+        {/* Sino de Notificação (Sentinela) */}
         <div className="relative group cursor-pointer">
           <div className="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center hover:border-[#ff00ff]/40 transition-all">
             <span className={`material-symbols-outlined text-2xl ${hasUpcoming ? 'text-[#ff00ff] animate-swing' : 'text-white/20'}`}>
@@ -62,14 +68,17 @@ export const Topbar: React.FC<{ title: string; subtitle?: string }> = ({ title, 
         <div className="h-10 w-px bg-white/5 hidden md:block"></div>
         
         <div className="flex items-center gap-4">
+          {/* Nome da agência do Supabase */}
           <div className="text-right hidden sm:block">
             <p className="text-[10px] font-black text-white uppercase tracking-tighter leading-none">
-              {settings.agency_name || 'HS Visual Intelligence'}
+              {settings.agency_name}
             </p>
-            <p className="text-[8px] font-bold text-[#B9FF66] uppercase tracking-widest mt-1">Founding Director</p>
+            <p className="text-[8px] font-bold text-[#B9FF66] uppercase tracking-widest mt-1">
+              {settings.user_email || 'Administrador'}
+            </p>
           </div>
-          {/* Avatar dinâmico do Supabase */}
-          <div className="w-12 h-12 rounded-full border-2 border-[#B9FF66]/30 p-0.5 bg-black overflow-hidden flex items-center justify-center">
+          {/* Avatar do Supabase ou iniciais */}
+          <div className="w-12 h-12 rounded-full border-2 border-[#B9FF66]/30 overflow-hidden flex items-center justify-center bg-black">
             {settings.admin_avatar_url ? (
               <img
                 src={settings.admin_avatar_url}
@@ -78,7 +87,9 @@ export const Topbar: React.FC<{ title: string; subtitle?: string }> = ({ title, 
                 onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
               />
             ) : (
-              <span className="material-symbols-outlined text-[#B9FF66]/60 text-2xl">account_circle</span>
+              <div className="w-full h-full bg-[#B9FF66]/10 flex items-center justify-center">
+                <span className="text-[11px] font-black text-[#B9FF66]">{initials}</span>
+              </div>
             )}
           </div>
         </div>
