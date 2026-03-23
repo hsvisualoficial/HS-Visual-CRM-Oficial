@@ -34,6 +34,10 @@ export const Sidebar: React.FC = () => {
             <span className="text-2xl transition-transform group-hover:scale-125">👥</span>
             <span className="nav-tooltip absolute left-16 bg-white/10 backdrop-blur-lg px-3 py-1 rounded text-[10px] font-bold uppercase tracking-widest text-white whitespace-nowrap">Clientes</span>
           </Link>
+          <Link to="/performance" className="nav-item relative group cursor-pointer flex justify-center">
+            <span className="text-2xl transition-transform group-hover:scale-125">📊</span>
+            <span className="nav-tooltip absolute left-16 bg-white/10 backdrop-blur-lg px-3 py-1 rounded text-[10px] font-bold uppercase tracking-widest text-white whitespace-nowrap">Performance</span>
+          </Link>
           <Link to="/financeiro" className="nav-item relative group cursor-pointer flex justify-center">
             <span className="text-2xl transition-transform group-hover:scale-125">💰</span>
             <span className="nav-tooltip absolute left-16 bg-white/10 backdrop-blur-lg px-3 py-1 rounded text-[10px] font-bold uppercase tracking-widest text-white whitespace-nowrap">Financeiro</span>

@@ -17,6 +17,10 @@ export const MobileNav: React.FC = () => {
           <span className="text-xl">👥</span>
           <span className="text-[8px] font-bold uppercase tracking-widest mt-1 text-white/40">Clientes</span>
         </Link>
+        <Link className="flex flex-col items-center justify-center p-2 hidden sm:flex" to="/performance">
+          <span className="text-xl">📊</span>
+          <span className="text-[8px] font-bold uppercase tracking-widest mt-1 text-white/40">Perf</span>
+        </Link>
         <Link className="flex flex-col items-center justify-center p-2" to="/financeiro">
           <span className="text-xl">💰</span>
           <span className="text-[8px] font-bold uppercase tracking-widest mt-1 text-white/40">Financeiro</span>

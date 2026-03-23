@@ -39,4 +39,32 @@
     visibility: visible;
     opacity: 1;
   }
+  .glass-card {
+    background: rgba(22, 22, 22, 0.6);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+  }
+  .neon-glow-magenta-subtle {
+    text-shadow: 0 0 15px rgba(255, 0, 128, 0.4);
+  }
+  .neon-glow-turquoise-subtle {
+    text-shadow: 0 0 15px rgba(0, 255, 209, 0.3);
+  }
+  .btn-premium-magenta {
+    background: linear-gradient(135deg, #FF0080 0%, #D6006B 100%);
+    box-shadow: 0 4px 20px -5px rgba(255, 0, 128, 0.4);
+  }
+  .gradient-border-magenta-subtle {
+    position: relative;
+    background: linear-gradient(#121212, #121212) padding-box,
+                linear-gradient(135deg, rgba(255, 0, 128, 0.5), rgba(112, 0, 255, 0.3)) border-box;
+    border: 1px solid transparent;
+  }
+  .funnel-step {
+    transition: transform 0.3s ease;
+  }
+  .funnel-step:hover {
+    transform: translateX(4px);
+  }
 }

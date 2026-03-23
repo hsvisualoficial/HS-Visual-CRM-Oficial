@@ -44,8 +44,11 @@ export const maskDate = (value: string) => {
 
 export const maskCreci = (value: string) => {
   let v = value.toUpperCase().replace(/[^A-Z0-9]/g, "");
+  if (v.length > 6) {
+    v = v.substring(0, 6);
+  }
   if (v.length > 5) {
-    v = v.replace(/^(\d{2})(\d{3})([A-Z])?/, "$1.$2-$3");
+    v = v.replace(/^(\d{2})(\d{3})([A-Z0-9])/, "$1.$2-$3");
   } else if (v.length > 2) {
     v = v.replace(/^(\d{2})(\d)/, "$1.$2");
   }
