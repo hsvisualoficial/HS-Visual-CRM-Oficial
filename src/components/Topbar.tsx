@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase';
+import { useSettings } from '../hooks/useSettings';
 
 export const Topbar: React.FC<{ title: string; subtitle?: string }> = ({ title, subtitle }) => {
   const [hasUpcoming, setHasUpcoming] = useState(false);
   const [count, setCount] = useState(0);
+  const { settings } = useSettings();
 
   useEffect(() => {
     const checkUpcoming = async () => {
@@ -43,15 +45,15 @@ export const Topbar: React.FC<{ title: string; subtitle?: string }> = ({ title, 
       </div>
       
       <div className="flex items-center gap-6">
-        {/* Notification Bell (Sentinela) */}
+        {/* Notification Bell */}
         <div className="relative group cursor-pointer">
-          <div className="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center hover:border-magenta/40 transition-all">
-            <span className={`material-symbols-outlined text-2xl ${hasUpcoming ? 'text-magenta animate-swing' : 'text-white/20'}`}>
+          <div className="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center hover:border-[#ff00ff]/40 transition-all">
+            <span className={`material-symbols-outlined text-2xl ${hasUpcoming ? 'text-[#ff00ff] animate-swing' : 'text-white/20'}`}>
               notifications
             </span>
           </div>
           {hasUpcoming && (
-            <div className="absolute -top-1 -right-1 w-5 h-5 bg-magenta border-2 border-[#050505] rounded-full flex items-center justify-center">
+            <div className="absolute -top-1 -right-1 w-5 h-5 bg-[#ff00ff] border-2 border-[#050505] rounded-full flex items-center justify-center">
               <span className="text-[10px] font-black text-white">{count}</span>
             </div>
           )}
@@ -60,17 +62,25 @@ export const Topbar: React.FC<{ title: string; subtitle?: string }> = ({ title, 
         <div className="h-10 w-px bg-white/5 hidden md:block"></div>
         
         <div className="flex items-center gap-4">
-           <div className="text-right hidden sm:block">
-             <p className="text-[10px] font-black text-white uppercase tracking-tighter leading-none">Helder Silva</p>
-             <p className="text-[8px] font-bold text-magenta uppercase tracking-widest mt-1">Founding Director</p>
-           </div>
-            <div className="w-12 h-12 rounded-full border-2 border-magenta/20 p-0.5 bg-black overflow-hidden flex items-center justify-center">
-              <img 
-                src="https://ppwaxkfpbnhdrwiholdw.supabase.co/storage/v1/object/public/brand_assets/admin_avatar.png" 
-                className="w-full h-full object-cover rounded-full" 
-                alt="Admin" 
+          <div className="text-right hidden sm:block">
+            <p className="text-[10px] font-black text-white uppercase tracking-tighter leading-none">
+              {settings.agency_name || 'HS Visual Intelligence'}
+            </p>
+            <p className="text-[8px] font-bold text-[#B9FF66] uppercase tracking-widest mt-1">Founding Director</p>
+          </div>
+          {/* Avatar dinâmico do Supabase */}
+          <div className="w-12 h-12 rounded-full border-2 border-[#B9FF66]/30 p-0.5 bg-black overflow-hidden flex items-center justify-center">
+            {settings.admin_avatar_url ? (
+              <img
+                src={settings.admin_avatar_url}
+                className="w-full h-full object-cover rounded-full"
+                alt="Admin"
+                onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
               />
-            </div>
+            ) : (
+              <span className="material-symbols-outlined text-[#B9FF66]/60 text-2xl">account_circle</span>
+            )}
+          </div>
         </div>
       </div>
     </header>
