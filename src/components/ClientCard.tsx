@@ -50,107 +50,128 @@ export const ClientCard: React.FC<ClientCardProps> = ({
 
   const currentColor = statusColors[status] || statusColors['Pendente'];
 
-  // Estilo Elite (Build v14) - Degradê Cyan/Teal
-  const cardStyle = "aura-glass bg-gradient-to-br from-[#00f2fe]/10 to-[#4facfe]/05 backdrop-blur-3xl border border-white/10 text-white shadow-[0_30px_60px_rgba(0,0,0,0.5)] rounded-[24px]";
-  
-  const subTextStyle = "text-white/40";
-  const labelStyle = "text-white/20";
-  const dateStyle = "text-white/60";
-
+  // Design Neon Noir Executive (v39)
   return (
     <motion.div 
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      whileHover={{ y: -5, borderColor: `${currentColor}44` }}
-      style={{ borderLeft: `4px solid ${currentColor}` }}
-      className={`p-8 relative group transition-all duration-500 ${cardStyle}`}
+      whileHover={{ y: -5, borderColor: '#E01183' }}
+      className="p-8 relative group transition-all duration-500 bg-[#0B0B0B] border border-white/5 rounded-[32px] overflow-hidden shadow-[0_40px_80px_rgba(0,0,0,0.8)]"
+      style={{ borderLeft: `2px solid #E01183` }}
     >
-      {/* Selo de Situação - Topo Direito */}
-      <button 
-        onClick={onToggleStatus}
-        className="absolute top-6 right-6 px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border transition-all z-10"
-        style={{ 
-          backgroundColor: `${currentColor}10`, 
-          borderColor: `${currentColor}30`,
-          color: currentColor
-        }}
-      >
-        {status}
-      </button>
+      {/* Selo de Situação - Skill v39 */}
+      <div className="absolute top-6 right-6 flex items-center gap-4">
+        <div className="text-right">
+          <span className="text-[8px] font-black uppercase tracking-[0.3em] block text-white/20">Início</span>
+          <span className="text-[10px] font-black tracking-tight text-white/40">{formattedDate}</span>
+        </div>
+        <button 
+          onClick={onToggleStatus}
+          className="px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border transition-all"
+          style={{ 
+            backgroundColor: `${currentColor}10`, 
+            borderColor: `${currentColor}20`,
+            color: currentColor
+          }}
+        >
+          {status}
+        </button>
+      </div>
 
-      <div className="flex justify-between items-start mb-10">
-        <div className="relative">
-          <div className="w-20 h-20 rounded-full p-1.5 absolute -top-12 -left-12 bg-[#0A0A0A] border-4 border-[#050505] shadow-2xl transition-transform group-hover:scale-105 duration-500 overflow-hidden">
+      <div className="flex gap-6 mb-8 relative">
+        {/* Foto Arredondada */}
+        <div className="w-20 h-20 rounded-full p-1 bg-gradient-to-br from-[#E01183] to-transparent shrink-0">
+          <div className="w-full h-full rounded-full bg-[#0B0B0B] overflow-hidden flex items-center justify-center border-2 border-[#0B0B0B]">
             <img 
               src={logo_url || 'https://via.placeholder.com/150'} 
               alt={nome}
-              className="w-full h-full object-cover rounded-full"
+              className="w-full h-full object-cover"
             />
           </div>
-          <div className="pl-10">
-            <h3 className="font-bold text-2xl tracking-tighter leading-none mb-2">{nome}</h3>
-            <p className="text-xs font-medium text-white/40">{cnpj_cpf}</p>
-            <p className={`text-[9px] uppercase tracking-[0.2em] font-bold mt-3 ${subTextStyle}`}>{empresa}</p>
-            {(creci || funcao || email) && (
-              <div className="mt-3 flex flex-col gap-1">
-                {funcao && <p className="text-[10px] text-white/60 font-medium italic">{funcao}</p>}
-                {email && <p className="text-[9px] text-white/50 font-medium lowercase tracking-tight">{email}</p>}
-                {creci && <p className="text-[9px] text-white/30 tracking-widest uppercase font-bold">CRECI: {creci}</p>}
+        </div>
+
+        <div className="flex-1 pt-2">
+          <div className="flex items-center gap-3 mb-2">
+            <h3 className="font-bold text-xl tracking-tight text-white leading-none truncate max-w-[180px]">{nome}</h3>
+            {/* IA Script Brain Icon */}
+            <button 
+              onClick={onGenerateScript}
+              className="w-8 h-8 rounded-full bg-[#A3FF47]/10 flex items-center justify-center text-[#A3FF47] hover:bg-[#A3FF47] hover:text-black transition-all shadow-[0_0_15px_rgba(163,255,71,0.2)]"
+              title="Gerar Script de Vendas IA"
+            >
+              <span className="material-symbols-outlined text-base">psychology</span>
+            </button>
+          </div>
+          <p className="text-[10px] font-medium text-white/40 mb-1">{cnpj_cpf}</p>
+          <p className="text-[9px] uppercase tracking-[0.2em] font-black text-[#20C2AE] truncate">{empresa}</p>
+          
+          <div className="mt-4 flex flex-col gap-1.5 border-l border-white/5 pl-4">
+            {funcao && (
+              <div className="flex items-center gap-2">
+                <span className="material-symbols-outlined text-[10px] text-white/20">work</span>
+                <p className="text-[10px] text-[#A3FF47]/60 font-medium uppercase tracking-tighter">{funcao}</p>
+              </div>
+            )}
+            {creci && (
+              <div className="flex items-center gap-2">
+                <span className="material-symbols-outlined text-[10px] text-white/20">badge</span>
+                <p className="text-[10px] text-white/60 font-medium font-mono uppercase">CRECI: {creci}</p>
+              </div>
+            )}
+            {email && (
+              <div className="flex items-center gap-2">
+                <span className="material-symbols-outlined text-[10px] text-white/20">mail</span>
+                <p className="text-[9px] text-white/40 font-medium lowercase truncate">{email}</p>
               </div>
             )}
           </div>
         </div>
-        <div className="text-right">
-          <span className={`text-[9px] font-black uppercase tracking-[0.3em] block mb-1 ${labelStyle}`}>Início</span>
-          <span className={`text-xs font-black tracking-tight ${dateStyle}`}>{formattedDate}</span>
-        </div>
       </div>
 
-      <div className="mb-10 min-h-[40px]">
-        <div className="flex flex-wrap gap-2">
-          {servicos?.slice(0, 3).map(s => (
-            <span key={s} className="px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest border border-white/5 bg-white/5 text-white/40">
-              {s}
-            </span>
-          ))}
-        </div>
+      {/* Serviços Minimalistas */}
+      <div className="mb-8 flex flex-wrap gap-2">
+        {servicos?.slice(0, 3).map(s => (
+          <span key={s} className="px-2.5 py-1 rounded-lg text-[8px] font-black uppercase tracking-widest bg-white/[0.03] text-white/30 border border-white/5">
+            {s}
+          </span>
+        ))}
       </div>
 
-      <div className="flex items-center gap-2 pt-6 border-t border-white/5">
-        <button 
-          onClick={onView}
-          className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl bg-white text-black hover:bg-[#00f2fe] text-[10px] font-black uppercase tracking-widest transition-all shadow-lg"
-        >
-          <span className="material-symbols-outlined text-base">analytics</span>
-          Dossiê
-        </button>
-        <button 
-          onClick={onGenerateScript}
-          className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl bg-[#B9FF66] text-black hover:bg-[#A3FF47] text-[10px] font-black uppercase tracking-widest transition-all shadow-lg"
-        >
-          <span className="material-symbols-outlined text-base">psychology</span>
-          IA Script
-        </button>
-        <button 
-          onClick={onGenerateContract}
-          className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all shadow-lg hover:scale-105 active:scale-95"
-          style={{ background: 'rgba(224,17,131,0.12)', border: '1px solid rgba(224,17,131,0.3)', color: '#E01183' }}
-        >
-          <span className="material-symbols-outlined text-base">description</span>
-          Contrato
-        </button>
-        <button 
-          onClick={onEdit}
-          className="w-11 h-11 flex items-center justify-center rounded-xl bg-white/5 border border-white/10 text-white hover:border-[#00f2fe] hover:text-[#00f2fe] transition-all"
-        >
-          <span className="material-symbols-outlined text-base">edit</span>
-        </button>
-        <button 
-          onClick={onDelete}
-          className="w-11 h-11 flex items-center justify-center rounded-xl bg-red-500/10 border border-red-500/20 text-red-500/60 hover:bg-red-500 hover:text-white transition-all"
-        >
-          <span className="material-symbols-outlined text-base">delete</span>
-        </button>
+      {/* Ações Rodapé Skill v39 */}
+      <div className="flex items-center justify-between pt-6 border-t border-white/5">
+        <div className="flex items-center gap-3">
+          <button 
+            onClick={onView}
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white text-black hover:bg-[#E01183] hover:text-white transition-all text-[9px] font-black uppercase tracking-widest"
+          >
+            <span className="material-symbols-outlined text-sm">visibility</span>
+            Dossiê
+          </button>
+          <button 
+            onClick={onGenerateContract}
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white hover:border-[#E01183] hover:text-[#E01183] transition-all text-[9px] font-black uppercase tracking-widest"
+          >
+            <span className="material-symbols-outlined text-sm">description</span>
+            Contrato
+          </button>
+        </div>
+        
+        <div className="flex items-center gap-2">
+          <button 
+            onClick={onEdit}
+            className="w-10 h-10 flex items-center justify-center rounded-xl bg-white/5 border border-white/10 text-white/60 hover:text-white hover:bg-white/10 transition-all"
+            title="Editar"
+          >
+            <span className="material-symbols-outlined text-lg">edit</span>
+          </button>
+          <button 
+            onClick={onDelete}
+            className="w-10 h-10 flex items-center justify-center rounded-xl bg-white/5 border border-white/10 text-red-500/50 hover:text-red-500 hover:bg-red-500/10 transition-all"
+            title="Excluir"
+          >
+            <span className="material-symbols-outlined text-lg">delete</span>
+          </button>
+        </div>
       </div>
     </motion.div>
   );

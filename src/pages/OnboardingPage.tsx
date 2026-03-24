@@ -436,7 +436,7 @@ export function OnboardingPage() {
                 <input
                   name="creci" value={formData.creci} onChange={handleChange}
                   onFocus={() => setFocusedField('creci')} placeholder="00.000-F"
-                  maxLength={8}
+                  maxLength={15}
                   className={inputClass('creci')}
                 />
               </div>

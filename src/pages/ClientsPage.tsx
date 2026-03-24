@@ -15,6 +15,7 @@ export const ClientsPage: React.FC = () => {
   const [selectedClient, setSelectedClient] = useState<any>(null);
   const [modalMode, setModalMode] = useState<'view' | 'edit'>('view');
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [deletingClient, setDeletingClient] = useState<any>(null);
 
   useEffect(() => {
     fetchClients();
@@ -84,19 +85,20 @@ export const ClientsPage: React.FC = () => {
     }
   };
 
-  const handleDelete = async (client: any) => {
-    if (!confirm(`Tem certeza que deseja excluir o cliente ${client.nome || client.razao_social}?`)) return;
-    
+
+  const confirmDelete = async () => {
+    if (!deletingClient) return;
     try {
       const { error } = await supabase
         .from('clientes_onboarding')
         .delete()
-        .eq('id', client.id);
-
+        .eq('id', deletingClient.id);
       if (error) throw error;
+      setDeletingClient(null);
       fetchClients();
     } catch (err) {
       console.error('Erro ao excluir cliente:', err);
+      alert('Erro ao excluir cliente. Verifique permissões.');
     }
   };
 
@@ -143,7 +145,7 @@ export const ClientsPage: React.FC = () => {
                 {...client} 
                 onView={() => handleAction(client, 'view')}
                 onEdit={() => handleAction(client, 'edit')}
-                onDelete={() => handleDelete(client)}
+                onDelete={() => setDeletingClient(client)}
                 onToggleStatus={() => handleToggleStatus(client)}
                 onGenerateScript={() => navigate(`/ia?clientId=${client.id}`)}
                 onGenerateContract={() => navigate(`/contratos?clientId=${client.id}`)}
@@ -166,6 +168,37 @@ export const ClientsPage: React.FC = () => {
         mode={modalMode}
         onSave={fetchClients}
       />
+
+      {/* Modal de Exclusão Segura - Skill v39 */}
+      {deletingClient && (
+        <div className="fixed inset-0 z-[200] flex items-center justify-center p-6 bg-black/90 backdrop-blur-sm">
+          <div className="bg-[#0B0B0B] border border-white/10 p-10 rounded-[40px] max-w-md w-full text-center shadow-[0_0_100px_rgba(224,17,131,0.2)]">
+            <div className="w-20 h-20 bg-red-500/10 rounded-full flex items-center justify-center mx-auto mb-8 border border-red-500/20">
+              <span className="material-symbols-outlined text-red-500 text-4xl">warning</span>
+            </div>
+            <h3 className="text-2xl font-black text-white mb-4 tracking-tighter uppercase leading-none">Exclusão Segura</h3>
+            <p className="text-white/40 text-sm mb-10 leading-relaxed font-medium">
+              Você está prestes a apagar o dossiê de <br/>
+              <span className="text-[#E01183] font-black">{deletingClient.nome || deletingClient.razao_social}</span>. <br/>
+              Esta ação é <span className="text-white underline">irreversível</span>.
+            </p>
+            <div className="grid grid-cols-2 gap-4">
+              <button 
+                onClick={() => setDeletingClient(null)}
+                className="py-4 rounded-2xl bg-white/5 text-white/40 font-black text-[10px] uppercase tracking-widest hover:bg-white/10 transition-all"
+              >
+                Cancelar
+              </button>
+              <button 
+                onClick={confirmDelete}
+                className="py-4 rounded-2xl bg-red-500 text-white font-black text-[10px] uppercase tracking-widest hover:scale-105 transition-all shadow-lg shadow-red-500/20"
+              >
+                Confirmar Exclusão
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <MobileNav />
     </div>

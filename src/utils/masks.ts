@@ -37,20 +37,15 @@ export const maskCep = (value: string) => {
 
 export const maskDate = (value: string) => {
   let v = value.replace(/\D/g, "").substring(0, 8);
-  if (v.length > 2) v = v.replace(/^(\d{2})(\d)/, "$1/$2");
-  if (v.length > 5) v = v.replace(/^(\d{2})\/(\d{2})(\d)/, "$1/$2/$3");
+  if (v.length > 4) {
+    v = v.replace(/^(\d{2})(\d{2})(\d+)/, "$1/$2/$3");
+  } else if (v.length > 2) {
+    v = v.replace(/^(\d{2})(\d+)/, "$1/$2");
+  }
   return v;
 };
 
 export const maskCreci = (value: string) => {
-  let v = value.toUpperCase().replace(/[^A-Z0-9]/g, "");
-  // Permite até 7 dígitos/caracteres (ex: 123.456 ou 1.234.567)
-  if (v.length > 7) {
-    v = v.substring(0, 7);
-  }
-  
-  if (v.length > 3) {
-    v = v.replace(/^(\d{3})(\d)/, "$1.$2");
-  }
-  return v;
+  // Campo livre v39: aceita alphanumeric, pontos e traços. Max 15.
+  return value.substring(0, 15);
 };
