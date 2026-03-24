@@ -91,6 +91,25 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     return () => subscription.unsubscribe();
   }, [fetch]);
 
+  // ── Favicon Dinâmico ──────────────────────────────────
+  // Atualiza o ícone da aba do navegador sempre que o logo mudar
+  useEffect(() => {
+    const link = document.getElementById('favicon-link') as HTMLLinkElement
+      || document.querySelector("link[rel~='icon']") as HTMLLinkElement;
+
+    if (!link) return;
+
+    if (settings.agency_logo_url) {
+      // Usa o logo da empresa como favicon
+      link.href = settings.agency_logo_url;
+      link.type = 'image/png'; // logos do Supabase são PNG
+    } else {
+      // Fallback: HS Visual Gold SVG
+      link.href = '/favicon.svg';
+      link.type = 'image/svg+xml';
+    }
+  }, [settings.agency_logo_url]);
+
   return (
     <AppContext.Provider value={{ settings, loading, refresh: fetch }}>
       {children}
