@@ -12,6 +12,7 @@ const LandingPage = lazy(() => import('./pages/LandingPage').then(module => ({ d
 const OnboardingPage = lazy(() => import('./pages/OnboardingPage').then(module => ({ default: module.OnboardingPage })));
 const DocumentsPage = lazy(() => import('./pages/DocumentsPage').then(module => ({ default: module.DocumentsPage })));
 const PerformancePage = lazy(() => import('./pages/PerformancePage').then(module => ({ default: module.PerformancePage })));
+const ContractsPage = lazy(() => import('./pages/ContractsPage').then(module => ({ default: module.ContractsPage })));
 import { ProtectedRoute } from './components/ProtectedRoute';
 
 function App() {
@@ -37,6 +38,7 @@ function App() {
             <Route path="/performance" element={<ProtectedRoute><PerformancePage /></ProtectedRoute>} />
             <Route path="/financeiro" element={<ProtectedRoute><FinancePage /></ProtectedRoute>} />
             <Route path="/setup" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
+            <Route path="/contratos" element={<ProtectedRoute><ContractsPage /></ProtectedRoute>} />
             <Route path="/documentos/:type/:id" element={<ProtectedRoute><DocumentsPage /></ProtectedRoute>} />
           </Routes>
         </Suspense>

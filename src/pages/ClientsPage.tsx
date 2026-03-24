@@ -146,8 +146,10 @@ export const ClientsPage: React.FC = () => {
                 onDelete={() => handleDelete(client)}
                 onToggleStatus={() => handleToggleStatus(client)}
                 onGenerateScript={() => navigate(`/ia?clientId=${client.id}`)}
+                onGenerateContract={() => navigate(`/contratos?clientId=${client.id}`)}
               />
             ))}
+
           </div>
         ) : (
           <div className="text-center py-20 bg-white/[0.02] rounded-3xl border border-white/5">

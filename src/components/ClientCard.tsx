@@ -18,6 +18,7 @@ export interface ClientCardProps {
   onDelete: () => void;
   onToggleStatus: () => void;
   onGenerateScript: () => void;
+  onGenerateContract: () => void;
 }
 
 export const ClientCard: React.FC<ClientCardProps> = ({ 
@@ -35,7 +36,8 @@ export const ClientCard: React.FC<ClientCardProps> = ({
   onEdit,
   onDelete,
   onToggleStatus,
-  onGenerateScript
+  onGenerateScript,
+  onGenerateContract
 }) => {
   const formattedDate = created_at ? new Date(created_at).toLocaleDateString('pt-BR') : '---';
   
@@ -128,6 +130,14 @@ export const ClientCard: React.FC<ClientCardProps> = ({
         >
           <span className="material-symbols-outlined text-base">psychology</span>
           IA Script
+        </button>
+        <button 
+          onClick={onGenerateContract}
+          className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all shadow-lg hover:scale-105 active:scale-95"
+          style={{ background: 'rgba(224,17,131,0.12)', border: '1px solid rgba(224,17,131,0.3)', color: '#E01183' }}
+        >
+          <span className="material-symbols-outlined text-base">description</span>
+          Contrato
         </button>
         <button 
           onClick={onEdit}

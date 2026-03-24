@@ -138,14 +138,20 @@ export const DocumentsPage: React.FC = () => {
 
         {/* Footer / Signature */}
         <footer className="mt-32 pt-12 border-t border-slate-100 flex justify-between items-end">
-          <div className="space-y-12">
-            <div>
-              <p className="text-[10px] font-black text-slate-300 uppercase tracking-widest mb-10">Assinatura do Responsável</p>
-              {config?.agency_logo_url && <img src={config.agency_logo_url} alt="Assinatura" className="h-12 grayscale opacity-60 mb-2" />}
-              <div className="w-64 h-px bg-slate-900" />
-              <p className="text-xs font-black text-slate-800 mt-2 uppercase">HELDER SILVA - CEO HS VISUAL</p>
-            </div>
+          <div className="space-y-4">
+            <p className="text-[10px] font-black text-slate-300 uppercase tracking-widest">Assinatura do Responsável</p>
+            {/* Assinatura dinâmica — vem do Supabase campo signature_url */}
+            {config?.signature_url ? (
+              <img src={config.signature_url} alt="Assinatura" className="h-16 object-contain mb-2" style={{ maxWidth: '200px' }} />
+            ) : config?.agency_logo_url ? (
+              <img src={config.agency_logo_url} alt="logo" className="h-10 grayscale opacity-50 mb-2" />
+            ) : (
+              <div className="h-10" />
+            )}
+            <div className="w-64 h-px bg-slate-900" />
+            <p className="text-xs font-black text-slate-800 mt-2 uppercase">HELDER BEZERRA FERREIRA - CEO HS VISUAL</p>
           </div>
+
           <div className="text-right text-[10px] font-bold text-slate-300 uppercase tracking-[0.3em]">
             Documento Autêntico • HS Visual System
           </div>

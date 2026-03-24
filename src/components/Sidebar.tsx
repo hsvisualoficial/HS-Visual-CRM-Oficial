@@ -20,9 +20,11 @@ export const Sidebar: React.FC = () => {
     { to: '/ia',          icon: '🧠', label: 'IA / Scripts' },
     { to: '/clientes',    icon: '👥', label: 'Clientes' },
     { to: '/performance', icon: '📊', label: 'Performance' },
+    { to: '/contratos',   icon: '📝', label: 'Contratos' },
     { to: '/financeiro',  icon: '💰', label: 'Financeiro' },
     { to: '/setup',       icon: '⚙️',  label: 'Configurações' },
   ];
+
 
   return (
     <>
