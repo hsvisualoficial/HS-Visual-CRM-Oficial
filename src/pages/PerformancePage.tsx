@@ -1,48 +1,95 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
+import { PageContainer } from '../components/PageContainer';
+import { Topbar } from '../components/Topbar';
+import { useAppContext } from '../context/AppContext';
+
+interface Cliente {
+  id: string;
+  razao_social: string;
+  telefone: string;
+  email: string;
+  valor_investimento: number | null;
+  plataforma_anuncio: string | null;
+}
+
+interface FinancialSummary {
+  faturamento: number;
+  despesas: number;
+  lucro: number;
+}
+
+const fmt = (val: number) =>
+  new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(val);
 
 export const PerformancePage: React.FC = () => {
-  const [clients, setClients] = useState<any[]>([]);
-  const [selectedClient, setSelectedClient] = useState<any>(null);
+  const { settings } = useAppContext();
+  const [clients, setClients] = useState<Cliente[]>([]);
+  const [selectedClient, setSelectedClient] = useState<Cliente | null>(null);
   const [loading, setLoading] = useState(true);
-  const [periodo, setPeriodo] = useState('7');
+  const [periodo, setPeriodo] = useState('30');
+  const [summary, setSummary] = useState<FinancialSummary>({ faturamento: 0, despesas: 0, lucro: 0 });
+  const [loadingSummary, setLoadingSummary] = useState(false);
 
+  // Carrega lista de clientes
   useEffect(() => {
+    const fetchClients = async () => {
+      try {
+        setLoading(true);
+        const { data } = await supabase
+          .from('clientes_onboarding')
+          .select('id, razao_social, telefone, email, valor_investimento, plataforma_anuncio')
+          .order('created_at', { ascending: false });
+        setClients(data || []);
+        if (data && data.length > 0) setSelectedClient(data[0]);
+      } finally {
+        setLoading(false);
+      }
+    };
     fetchClients();
   }, []);
 
-  const fetchClients = async () => {
-    try {
-      setLoading(true);
-      const { data, error } = await supabase
-        .from('clientes_onboarding')
-        .select('id, razao_social, telefone, email')
-        .order('created_at', { ascending: false });
+  // Carrega dados financeiros do cliente selecionado + período
+  useEffect(() => {
+    if (!selectedClient) { setSummary({ faturamento: 0, despesas: 0, lucro: 0 }); return; }
 
-      if (error) {
-        console.error('Erro ao buscar clientes:', error);
-        setClients([]);
-      } else {
-        setClients(data || []);
-        if (data && data.length > 0) {
-          setSelectedClient(data[0]);
-        }
+    const fetchSummary = async () => {
+      setLoadingSummary(true);
+      try {
+        const dias = parseInt(periodo);
+        const from = new Date();
+        from.setDate(from.getDate() - dias);
+        const fromStr = from.toISOString().split('T')[0];
+
+        const { data: entradas } = await supabase
+          .from('financeiro')
+          .select('valor')
+          .eq('tipo', 'Entrada')
+          .gte('data_vencimento', fromStr);
+
+        const { data: saidas } = await supabase
+          .from('financeiro')
+          .select('valor')
+          .eq('tipo', 'Saída')
+          .gte('data_vencimento', fromStr);
+
+        const faturamento = entradas?.reduce((s, r) => s + (Number(r.valor) || 0), 0) ?? 0;
+        const despesas = saidas?.reduce((s, r) => s + (Number(r.valor) || 0), 0) ?? 0;
+        setSummary({ faturamento, despesas, lucro: faturamento - despesas });
+      } finally {
+        setLoadingSummary(false);
       }
-    } catch (err) {
-      console.error('Erro inesperado:', err);
-      setClients([]);
-    } finally {
-      setLoading(false);
-    }
-  };
+    };
+    fetchSummary();
+  }, [selectedClient, periodo]);
 
   const handleWhatsApp = () => {
     const phone = selectedClient?.telefone?.replace(/\D/g, '') || '';
     const nome = selectedClient?.razao_social?.split(' ')[0] || 'Cliente';
     const hora = new Date().getHours();
     const saudacao = hora < 12 ? 'Bom dia' : hora < 18 ? 'Boa tarde' : 'Boa noite';
-    const msg = `*${saudacao}, ${nome}! 🚀*\n\n*Relatório de Performance — Últimos ${periodo} dias*\n\n📊 *Campanha:* Performance Master\n\n💬 *142* Conversas Geradas\n💰 Custo por conversa: *R$ 4,50*\n📈 Total investido: *R$ 639,00*\n👥 Alcance: *24.500 pessoas*\n👁️ Impressões: *45.200*\n\n⭐ *Score da Campanha: 8.2/10*\n📈 Tendência: *+8% de crescimento*\n\n_Quantas dessas conversas avançaram para fechamento? Seu feedback é muito importante para otimizarmos ainda mais!_ 🎯`;
+    const agencia = settings.agency_name || 'HS Visual Intelligence';
+    const msg = `*${saudacao}, ${nome}! 🚀*\n\n*Relatório de Performance — Últimos ${periodo} dias*\n\n📊 *Agência:* ${agencia}\n\n💰 *Faturamento:* ${fmt(summary.faturamento)}\n📉 *Despesas:* ${fmt(summary.despesas)}\n✅ *Lucro Líquido:* ${fmt(summary.lucro)}\n💼 *Investimento:* ${fmt(selectedClient?.valor_investimento || 0)}\n\n_Qualquer dúvida estamos à disposição!_ 🎯`;
     if (phone) {
       window.open(`https://wa.me/55${phone}?text=${encodeURIComponent(msg)}`, '_blank');
     } else {
@@ -50,202 +97,160 @@ export const PerformancePage: React.FC = () => {
     }
   };
 
+  const periodoBtns = [
+    { label: '7 dias', value: '7' },
+    { label: '15 dias', value: '15' },
+    { label: '30 dias', value: '30' },
+    { label: '90 dias', value: '90' },
+  ];
+
   return (
-    <div style={{ minHeight: '100vh', background: '#050505', color: '#F2F2F2', fontFamily: 'Inter, sans-serif' }}>
-      {/* Sidebar Desktop */}
-      <nav style={{
-        position: 'fixed', left: 0, top: 0, height: '100%', width: '72px',
-        background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(20px)',
-        borderRight: '1px solid rgba(255,255,255,0.05)', display: 'flex',
-        flexDirection: 'column', alignItems: 'center', paddingTop: '32px', gap: '24px', zIndex: 50
-      }}>
-        <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: 'rgba(255,0,128,0.15)', border: '1px solid rgba(255,0,128,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '16px' }}>
-          <span style={{ color: '#FF0080', fontSize: '18px' }}>⚡</span>
-        </div>
-        {[
-          { to: '/painel', icon: '🟢', label: 'Painel' },
-          { to: '/ia', icon: '🧠', label: 'IA' },
-          { to: '/clientes', icon: '👥', label: 'Clientes' },
-          { to: '/performance', icon: '📊', label: 'Performance', active: true },
-          { to: '/financeiro', icon: '💰', label: 'Financeiro' },
-          { to: '/setup', icon: '⚙️', label: 'Config' },
-        ].map(item => (
-          <Link key={item.to} to={item.to} title={item.label} style={{
-            fontSize: '22px', textDecoration: 'none', opacity: item.active ? 1 : 0.5,
-            filter: item.active ? 'none' : 'grayscale(0.5)',
-            transition: 'opacity 0.2s',
-          }}>
-            {item.icon}
-          </Link>
-        ))}
-      </nav>
+    <PageContainer>
+      <Topbar title="Performance Master" subtitle="Relatório de Resultados por Cliente" />
 
-      {/* Main Content */}
-      <main style={{ marginLeft: '72px', padding: '40px 24px', maxWidth: '720px' }}>
-        
-        {/* Header */}
-        <div style={{ marginBottom: '32px' }}>
-          <span style={{ fontSize: '11px', color: '#FF0080', fontWeight: 800, letterSpacing: '0.3em', textTransform: 'uppercase' }}>
-            Relatório Premium
-          </span>
-          <h1 style={{ fontSize: '32px', fontWeight: 700, color: '#fff', margin: '8px 0 4px', letterSpacing: '-0.5px' }}>
-            Performance Master
-          </h1>
-          <div style={{ display: 'flex', gap: '8px', marginTop: '12px' }}>
-            {['7', '15', '30'].map(p => (
-              <button key={p} onClick={() => setPeriodo(p)} style={{
-                padding: '6px 16px', borderRadius: '20px', border: 'none', cursor: 'pointer',
-                background: periodo === p ? '#FF0080' : 'rgba(255,255,255,0.05)',
-                color: periodo === p ? '#fff' : 'rgba(255,255,255,0.5)',
-                fontSize: '12px', fontWeight: 700, transition: 'all 0.2s'
-              }}>
-                {p} dias
-              </button>
-            ))}
-          </div>
+      <div className="space-y-8">
+        {/* Filtros de Período */}
+        <div className="flex items-center gap-2 flex-wrap">
+          {periodoBtns.map(p => (
+            <button
+              key={p.value}
+              onClick={() => setPeriodo(p.value)}
+              className={`px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest transition-all ${
+                periodo === p.value
+                  ? 'bg-[#ff00ff] text-white shadow-[0_0_15px_rgba(255,0,255,0.3)]'
+                  : 'bg-white/5 text-white/40 hover:text-white/70'
+              }`}
+            >
+              {p.label}
+            </button>
+          ))}
         </div>
 
-        {/* Client Selector */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '24px' }}>
-          <div style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '16px', padding: '16px' }}>
-            <p style={{ fontSize: '10px', color: '#8E8E93', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.2em', marginBottom: '8px' }}>
-              Cliente
-            </p>
-            {loading ? (
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <div style={{ width: '16px', height: '16px', border: '2px solid #FF0080', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
-                <span style={{ color: 'rgba(255,255,255,0.4)', fontSize: '12px' }}>Carregando...</span>
-              </div>
-            ) : clients.length === 0 ? (
-              <span style={{ color: 'rgba(255,255,255,0.4)', fontSize: '14px' }}>Nenhum cliente cadastrado</span>
-            ) : (
-              <select
-                value={selectedClient?.id || ''}
-                onChange={(e) => setSelectedClient(clients.find(c => c.id === e.target.value))}
-                style={{ background: 'transparent', color: '#fff', border: 'none', outline: 'none', fontSize: '16px', fontWeight: 600, width: '100%', cursor: 'pointer' }}
-              >
-                {clients.map(c => (
-                  <option key={c.id} value={c.id} style={{ background: '#1a1a1a' }}>
-                    {c.razao_social || 'Sem Nome'}
-                  </option>
-                ))}
-              </select>
-            )}
-          </div>
-          <div style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '16px', padding: '16px' }}>
-            <p style={{ fontSize: '10px', color: '#8E8E93', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.2em', marginBottom: '8px' }}>
-              Campanha
-            </p>
-            <select style={{ background: 'transparent', color: '#fff', border: 'none', outline: 'none', fontSize: '16px', fontWeight: 600, cursor: 'pointer' }}>
-              <option style={{ background: '#1a1a1a' }}>Performance Master (Ativa)</option>
-              <option style={{ background: '#1a1a1a' }}>Remarketing Geral</option>
-            </select>
+        {/* Seletor de Cliente */}
+        <div className="aura-glass rounded-2xl p-6 border border-white/5">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label className="text-[10px] text-white/40 uppercase tracking-widest font-bold mb-2 block">Cliente</label>
+              {loading ? (
+                <div className="h-8 bg-white/5 rounded animate-pulse w-48" />
+              ) : clients.length === 0 ? (
+                <p className="text-white/30 text-sm">Nenhum cliente cadastrado</p>
+              ) : (
+                <select
+                  value={selectedClient?.id || ''}
+                  onChange={(e) => setSelectedClient(clients.find(c => c.id === e.target.value) || null)}
+                  className="bg-transparent text-white border-none outline-none text-lg font-semibold w-full cursor-pointer"
+                >
+                  {clients.map(c => (
+                    <option key={c.id} value={c.id} style={{ background: '#0a0a0a' }}>
+                      {c.razao_social || 'Sem Nome'}
+                    </option>
+                  ))}
+                </select>
+              )}
+            </div>
+            <div>
+              <label className="text-[10px] text-white/40 uppercase tracking-widest font-bold mb-2 block">Plataforma</label>
+              <p className="text-lg font-semibold text-white">
+                {selectedClient?.plataforma_anuncio || <span className="text-white/30">—</span>}
+              </p>
+            </div>
           </div>
         </div>
 
-        {/* Main Metric Card */}
-        <div style={{ background: 'linear-gradient(135deg, rgba(255,0,128,0.08) 0%, rgba(0,0,0,0) 60%)', border: '1px solid rgba(255,0,128,0.2)', borderRadius: '24px', padding: '36px', marginBottom: '16px', position: 'relative', overflow: 'hidden' }}>
-          <p style={{ fontSize: '11px', color: '#FF0080', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.2em' }}>Conversas Ativas</p>
-          <div style={{ display: 'flex', alignItems: 'flex-end', gap: '12px', margin: '12px 0' }}>
-            <span style={{ fontSize: '80px', fontWeight: 700, color: '#fff', lineHeight: 1 }}>142</span>
-            <span style={{ fontSize: '14px', color: '#00FFD1', fontWeight: 700, marginBottom: '12px', background: 'rgba(0,255,209,0.1)', padding: '4px 10px', borderRadius: '20px', border: '1px solid rgba(0,255,209,0.2)' }}>+12%</span>
-          </div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', paddingTop: '16px', borderTop: '1px solid rgba(255,255,255,0.05)', marginTop: '8px' }}>
-            <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.3)' }}>Últimos {periodo} dias</span>
-            <span style={{ fontSize: '11px', color: '#00FFD1', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '4px' }}>
-              <span style={{ width: '8px', height: '8px', background: '#00FFD1', borderRadius: '50%', display: 'inline-block', animation: 'pulse 2s infinite' }} />
-              Sincronizado
-            </span>
-          </div>
-        </div>
-
-        {/* Metrics Grid */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px', marginBottom: '24px' }}>
+        {/* Cards de Métricas Financeiras Reais */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
           {[
-            { label: 'Custo por Conv.', value: 'R$ 4,50', color: '#fff' },
-            { label: 'Total Investido', value: 'R$ 639,00', color: '#fff' },
-            { label: 'Saldo Disp.', value: 'R$ 1.250', color: '#00FFD1' },
-            { label: 'Alcance', value: '24.5k', color: '#fff' },
-            { label: 'Impressões', value: '45.2k', color: '#fff' },
-            { label: 'Score', value: '8.2/10', color: '#FF0080' },
-          ].map(m => (
-            <div key={m.label} style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '14px', padding: '16px' }}>
-              <p style={{ fontSize: '9px', color: '#8E8E93', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '6px' }}>{m.label}</p>
-              <p style={{ fontSize: '20px', fontWeight: 700, color: m.color }}>{m.value}</p>
+            { label: 'Faturamento', value: summary.faturamento, icon: 'trending_up', color: '#B9FF66' },
+            { label: 'Despesas', value: summary.despesas, icon: 'trending_down', color: '#ff4444' },
+            { label: 'Lucro Líquido', value: summary.lucro, icon: 'savings', color: summary.lucro >= 0 ? '#B9FF66' : '#ff4444' },
+          ].map(card => (
+            <div
+              key={card.label}
+              className="aura-glass p-7 rounded-2xl border border-white/5 flex flex-col gap-4 transition-all hover:border-white/10"
+            >
+              <div className="flex items-center justify-between">
+                <span className="text-[10px] text-white/40 uppercase tracking-widest font-bold">{card.label}</span>
+                <span className="material-symbols-outlined text-sm" style={{ color: card.color }}>{card.icon}</span>
+              </div>
+              {loadingSummary ? (
+                <div className="h-10 bg-white/5 rounded animate-pulse" />
+              ) : (
+                <p className="text-3xl md:text-4xl font-extrabold tracking-tighter" style={{ color: card.label === 'Despesas' ? '#ff6666' : 'white' }}>
+                  {fmt(card.value)}
+                </p>
+              )}
+              <p className="text-xs" style={{ color: card.color }}>
+                {card.value === 0 ? 'Sem lançamentos no período' : `Últimos ${periodo} dias`}
+              </p>
             </div>
           ))}
         </div>
 
-        {/* Funnel */}
-        <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '24px', padding: '28px', marginBottom: '24px' }}>
-          <h3 style={{ fontSize: '16px', fontWeight: 700, color: '#fff', marginBottom: '20px' }}>Funil de Conversão</h3>
-          {[
-            { label: 'Impressões', value: '45.200', badge: '100%', color: 'rgba(255,255,255,0.1)' },
-            { label: 'Alcance Único', value: '24.500', badge: '54% Alcance', color: 'rgba(255,0,128,0.1)' },
-            { label: 'Conversas Geradas', value: '142', badge: '0.58% CTR', color: 'rgba(0,255,209,0.1)' },
-          ].map(step => (
-            <div key={step.label} style={{ background: step.color, borderRadius: '12px', padding: '16px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-              <div>
-                <p style={{ fontSize: '10px', color: 'rgba(255,255,255,0.5)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '4px' }}>{step.label}</p>
-                <p style={{ fontSize: '20px', fontWeight: 700, color: '#fff' }}>{step.value}</p>
-              </div>
-              <span style={{ fontSize: '11px', color: '#FF0080', fontWeight: 700, background: 'rgba(255,0,128,0.1)', padding: '6px 12px', borderRadius: '20px', border: '1px solid rgba(255,0,128,0.2)' }}>{step.badge}</span>
+        {/* Investimento do Cliente */}
+        {selectedClient && (
+          <div className="aura-glass rounded-2xl p-6 border border-[#ff00ff]/20 flex items-center gap-6">
+            <span className="material-symbols-outlined text-[#ff00ff] text-3xl">account_balance</span>
+            <div>
+              <p className="text-[10px] text-white/40 uppercase tracking-widest font-bold mb-1">Investimento Mensal Contratado</p>
+              <p className="text-3xl font-extrabold tracking-tighter text-white">
+                {selectedClient.valor_investimento ? fmt(selectedClient.valor_investimento) : <span className="text-white/30">Não informado</span>}
+              </p>
             </div>
-          ))}
-        </div>
+          </div>
+        )}
 
-        {/* AI Analysis */}
-        <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '24px', padding: '28px', marginBottom: '24px' }}>
-          <span style={{ fontSize: '10px', color: 'rgba(255,255,255,0.4)', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.2em' }}>Análise Estratégica AI</span>
-          <div style={{ marginTop: '20px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+        {/* Análise Estratégica — Estática Premium */}
+        <div className="aura-glass rounded-2xl p-8 border border-white/5 space-y-6">
+          <p className="text-[10px] text-white/30 uppercase tracking-widest font-bold">Análise Estratégica IA</p>
+          <div className="space-y-5">
             {[
-              { icon: '✅', color: '#00FFD1', label: 'Pontos Fortes', text: 'Forte engajamento no criativo B; custo por clique 15% abaixo da média do setor.' },
-              { icon: '⚠️', color: '#FF4D4D', label: 'Oportunidade', text: 'Otimizar conversão de alcance na quarta-feira via agendamento de orçamento.' },
-              { icon: '🚀', color: '#FF0080', label: 'Próximos Passos', text: 'Escalar público Lookalike e testar nova CTA de urgência no topo do funil.' },
+              { icon: '✅', color: '#B9FF66', label: 'Saúde Financeira', text: summary.lucro > 0 ? `Resultado positivo de ${fmt(summary.lucro)} nos últimos ${periodo} dias. Continue monitorando.` : summary.lucro === 0 ? 'Sem lançamentos no período. Cadastre entrada e saídas no Financeiro.' : `Resultado negativo de ${fmt(Math.abs(summary.lucro))}. Revise as despesas do período.` },
+              { icon: '📈', color: '#66FFED', label: 'Próximos Passos', text: 'Cadastre os investimentos em mídia na aba Financeiro para que o sistema calcule o ROI automaticamente.' },
+              { icon: '🚀', color: '#ff00ff', label: 'Meta de Crescimento', text: 'Acompanhe o crescimento mensal pela Home. O sistema atualiza em tempo real ao registrar novos lançamentos.' },
             ].map(a => (
-              <div key={a.label} style={{ display: 'flex', gap: '16px' }}>
-                <div style={{ width: '36px', height: '36px', borderRadius: '10px', background: `${a.color}10`, border: `1px solid ${a.color}30`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: '16px' }}>
+              <div key={a.label} className="flex gap-4">
+                <div
+                  className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 text-base"
+                  style={{ background: `${a.color}15`, border: `1px solid ${a.color}30` }}
+                >
                   {a.icon}
                 </div>
                 <div>
-                  <p style={{ fontSize: '10px', color: a.color, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.15em', marginBottom: '4px' }}>{a.label}</p>
-                  <p style={{ fontSize: '14px', color: 'rgba(255,255,255,0.7)', lineHeight: 1.5 }}>{a.text}</p>
+                  <p className="text-[10px] font-extrabold uppercase tracking-widest mb-1" style={{ color: a.color }}>{a.label}</p>
+                  <p className="text-sm text-white/70 leading-relaxed">{a.text}</p>
                 </div>
               </div>
             ))}
           </div>
         </div>
 
-        {/* Forecast */}
-        <div style={{ background: '#1a1a1a', borderLeft: '4px solid #00FFD1', borderRadius: '16px', padding: '20px 24px', display: 'flex', gap: '16px', alignItems: 'center', marginBottom: '24px' }}>
-          <span style={{ fontSize: '28px' }}>📈</span>
-          <p style={{ fontSize: '14px', color: 'rgba(255,255,255,0.8)', lineHeight: 1.5 }}>
-            Previsão 30 dias: estimamos gerar <strong style={{ color: '#00FFD1' }}>4.260 conversas</strong> mantendo o investimento atual.
-          </p>
-        </div>
-
-        {/* Action Buttons */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', paddingBottom: '48px' }}>
+        {/* Ações */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pb-8">
           <button
             onClick={handleWhatsApp}
-            style={{ gridColumn: '1 / -1', height: '64px', borderRadius: '16px', background: 'linear-gradient(135deg, #FF0080, #FF4D9D)', border: 'none', color: '#fff', fontWeight: 800, fontSize: '14px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', letterSpacing: '0.05em', boxShadow: '0 10px 30px rgba(255,0,128,0.3)', transition: 'all 0.2s' }}
+            className="md:col-span-2 h-16 rounded-2xl font-extrabold text-sm tracking-widest uppercase flex items-center justify-center gap-3 transition-all hover:scale-[1.02] active:scale-95"
+            style={{ background: 'linear-gradient(135deg, #ff00ff, #ff4d9d)', boxShadow: '0 10px 30px rgba(255,0,255,0.25)' }}
           >
-            📲 Enviar Relatório para o Cliente
+            <span className="text-xl">📲</span>
+            Enviar Relatório por WhatsApp
           </button>
-          <button style={{ height: '52px', borderRadius: '14px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.6)', fontSize: '12px', fontWeight: 700, cursor: 'pointer', letterSpacing: '0.05em' }}>
-            📄 Exportar PDF
+          <button
+            disabled
+            className="h-14 rounded-xl bg-white/5 border border-white/10 text-white/40 text-xs font-bold uppercase tracking-widest flex items-center justify-center gap-2 cursor-not-allowed"
+          >
+            <span className="material-symbols-outlined text-sm">picture_as_pdf</span>
+            Exportar PDF (em breve)
           </button>
-          <button style={{ height: '52px', borderRadius: '14px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.6)', fontSize: '12px', fontWeight: 700, cursor: 'pointer', letterSpacing: '0.05em' }}>
-            🔗 Copiar Link
+          <button
+            disabled
+            className="h-14 rounded-xl bg-white/5 border border-white/10 text-white/40 text-xs font-bold uppercase tracking-widest flex items-center justify-center gap-2 cursor-not-allowed"
+          >
+            <span className="material-symbols-outlined text-sm">share</span>
+            Copiar Link (em breve)
           </button>
         </div>
-
-        <style>{`
-          @keyframes spin { to { transform: rotate(360deg); } }
-          @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
-          select option { background: #1a1a1a; color: white; }
-        `}</style>
-      </main>
-    </div>
+      </div>
+    </PageContainer>
   );
 };
