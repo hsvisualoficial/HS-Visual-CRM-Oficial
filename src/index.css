@@ -1,123 +1,130 @@
 @import "tailwindcss";
 
-/* ── MetricZap: Neon Noir Executive ── */
-:root {
-  --mg:     #E01183;  /* Magenta HS */
-  --tq:     #20C2AE;  /* Turquesa */
-  --bg:     #0B0B0B;  /* Fundo base */
-  --card:   #141414;  /* Cards */
-  --border: #1F1F1F;  /* Bordas */
-  --text:   #F0F0F0;  /* Corpo */
+/* ══════════════════════════════════════════════════
+   MetricZap — Neon Noir Executive
+   Tailwind v4: configuração via @theme (não tailwind.config.js)
+   ══════════════════════════════════════════════════ */
+
+@theme {
+  /* ── Paleta MetricZap ── */
+  --color-bg-base:      #0B0B0B;
+  --color-bg-card:      #141414;
+  --color-bg-border:    #1F1F1F;
+  --color-magenta:      #E01183;
+  --color-magenta-dim:  #B8006B;
+  --color-turquesa:     #20C2AE;
+  --color-turquesa-dim: #189E8D;
+
+  /* ── Aliases (compatibilidade com classes legadas) ── */
+  --color-primary:      #E01183;
+  --color-secondary:    #20C2AE;
+  --color-tertiary:     #20C2AE;
+  --color-background:   #0B0B0B;
+  --color-surface:      #141414;
+  --color-error:        #FF5252;
+  --color-on-surface:   #F0F0F0;
+  --color-surface-container-high: #1F1F1F;
+  --color-surface-container:      #141414;
+  --color-surface-container-low:  #0D0D0D;
+  --color-surface-variant:        #1A1A1A;
+
+  /* ── Tipografia ── */
+  --font-headline:    "Space Grotesk", "Urbanist", sans-serif;
+  --font-display:     "Space Grotesk", sans-serif;
+  --font-body:        "Plus Jakarta Sans", "Urbanist", sans-serif;
+  --font-plus-jakarta:"Plus Jakarta Sans", sans-serif;
+  --font-label:       "Plus Jakarta Sans", sans-serif;
+
+  /* ── Border Radius ── */
+  --radius-DEFAULT: 0.75rem;
+  --radius-lg:      1.25rem;
+  --radius-xl:      1.75rem;
+  --radius-2xl:     2rem;
 }
 
+/* ── Base global ── */
 @layer base {
   body {
     background-color: #0B0B0B;
     color: #F0F0F0;
-    font-family: 'Plus Jakarta Sans', 'Urbanist', sans-serif;
+    font-family: "Plus Jakarta Sans", "Urbanist", sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
 
-  h1, h2, h3, .font-display {
-    font-family: 'Space Grotesk', 'Urbanist', sans-serif;
+  h1, h2, h3 {
+    font-family: "Space Grotesk", "Urbanist", sans-serif;
     letter-spacing: -0.02em;
+    color: #FFFFFF;
   }
 }
 
+/* ── Componentes utilitários ── */
 @layer components {
 
-  /* Ícones Material */
   .material-symbols-outlined {
     font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
   }
 
-  /* Superfície glass (MetricZap) */
+  /* Superfície glass MetricZap */
   .aura-glass {
-    background: rgba(20, 20, 20, 0.7);
+    background: rgba(20, 20, 20, 0.75);
     backdrop-filter: blur(24px);
     -webkit-backdrop-filter: blur(24px);
     border: 1px solid #1F1F1F;
   }
 
-  /* Glass card sólido */
+  /* Card sólido */
   .glass-card {
     background: #141414;
     border: 1px solid #1F1F1F;
   }
 
-  /* Glows Estratégicos (suaves, não estourados) */
-  .glow-primary {
-    box-shadow: 0 0 40px rgba(224, 17, 131, 0.08);
-  }
-  .glow-magenta {
-    box-shadow: 0 4px 20px -5px rgba(224, 17, 131, 0.30);
-  }
-  .glow-turquesa {
-    box-shadow: 0 0 30px rgba(32, 194, 174, 0.10);
-  }
-  .glow-tertiary {
-    box-shadow: 0 0 30px rgba(32, 194, 174, 0.10);
-  }
-  .glow-gold {
-    box-shadow: 0 0 30px rgba(224, 17, 131, 0.10);
-  }
+  /* Glows estratégicos (suaves) */
+  .glow-primary   { box-shadow: 0 0 40px rgba(224, 17, 131, 0.08); }
+  .glow-magenta   { box-shadow: 0 4px 20px -5px rgba(224, 17, 131, 0.30); }
+  .glow-turquesa  { box-shadow: 0 0 30px rgba(32, 194, 174, 0.10); }
+  .glow-tertiary  { box-shadow: 0 0 30px rgba(32, 194, 174, 0.10); }
+  .glow-gold      { box-shadow: 0 0 30px rgba(224, 17, 131, 0.10); }
 
-  /* Botão primário (CTA) */
+  /* Botão primário CTA */
   .btn-premium-magenta {
     background: linear-gradient(135deg, #E01183 0%, #FF5E50 100%);
     box-shadow: 0 4px 20px -5px rgba(224, 17, 131, 0.40);
     color: #fff;
-    font-family: 'Space Grotesk', sans-serif;
+    font-family: "Space Grotesk", sans-serif;
     font-weight: 700;
     letter-spacing: 0.05em;
     text-transform: uppercase;
+    transition: all 0.2s ease;
   }
   .btn-premium-magenta:hover {
     transform: scale(1.02);
     box-shadow: 0 6px 28px -5px rgba(224, 17, 131, 0.55);
   }
 
-  /* Borda gradiente magenta */
+  /* Borda gradiente magenta/turquesa */
   .gradient-border-magenta-subtle {
-    position: relative;
     background: linear-gradient(#141414, #141414) padding-box,
                 linear-gradient(135deg, rgba(224,17,131,0.4), rgba(32,194,174,0.2)) border-box;
     border: 1px solid transparent;
   }
 
-  /* Texto neon sutil */
-  .neon-text-primary {
-    text-shadow: 0 0 12px rgba(224, 17, 131, 0.25);
-  }
-  .neon-glow-magenta-subtle {
-    text-shadow: 0 0 15px rgba(224, 17, 131, 0.30);
-  }
-  .neon-glow-turquoise-subtle {
-    text-shadow: 0 0 15px rgba(32, 194, 174, 0.25);
-  }
+  /* Neon text sutil */
+  .neon-text-primary           { text-shadow: 0 0 12px rgba(224, 17, 131, 0.25); }
+  .neon-glow-magenta-subtle    { text-shadow: 0 0 15px rgba(224, 17, 131, 0.30); }
+  .neon-glow-turquoise-subtle  { text-shadow: 0 0 15px rgba(32, 194, 174, 0.25); }
 
-  /* Nav tooltip */
-  .nav-tooltip {
-    visibility: hidden;
-    opacity: 0;
-    transition: opacity 0.25s ease;
-  }
-  .nav-item:hover .nav-tooltip {
-    visibility: visible;
-    opacity: 1;
-  }
+  /* Tooltips do nav */
+  .nav-tooltip { visibility: hidden; opacity: 0; transition: opacity 0.25s ease; }
+  .nav-item:hover .nav-tooltip { visibility: visible; opacity: 1; }
 
-  /* Funil hover */
-  .funnel-step {
-    transition: transform 0.3s ease;
-  }
-  .funnel-step:hover {
-    transform: translateX(4px);
-  }
+  /* Funnel hover */
+  .funnel-step { transition: transform 0.3s ease; }
+  .funnel-step:hover { transform: translateX(4px); }
 
-  /* Scroll discreto */
-  ::-webkit-scrollbar { width: 4px; height: 4px; }
+  /* Scrollbar discreta */
+  ::-webkit-scrollbar       { width: 4px; height: 4px; }
   ::-webkit-scrollbar-track { background: #0B0B0B; }
   ::-webkit-scrollbar-thumb { background: #1F1F1F; border-radius: 4px; }
   ::-webkit-scrollbar-thumb:hover { background: #E01183; }
