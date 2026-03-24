@@ -1,0 +1,151 @@
+{
+  "name": "HS Visual - Maestro Multimodal v41",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "evolution-webhook",
+        "options": {}
+      },
+      "name": "Webhook Evolution API",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        100,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{$node[\"Webhook Evolution API\"].json[\"data\"][\"message\"][\"conversation\"] || \"\"}}",
+              "operation": "contains",
+              "value2": "Tenho interesse"
+            }
+          ]
+        }
+      },
+      "name": "Filtro Ad Meta",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        340,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "model": "gemini-1.5-flash",
+        "prompt": "=Você é a Aura IA, assistente estratégica de HELDER BEZERRA FERREIRA na HS Visual. \nSua missão é extrair inteligência deste lead que veio de um anúncio imobiliário.\n\nCONTEÚDO RECEBIDO: {{$node[\"Webhook Evolution API\"].json[\"data\"][\"message\"][\"conversation\"] || \"Mídia/Áudio Detectado\"}}\n\nINSTRUÇÕES:\n1. Identifique o NOME do lead.\n2. Identifique a IMOBILIÁRIA ou se é Corretor Autônomo.\n3. Identifique a NECESSIDADE/DIFICULDADE com tráfego pago.\n4. Se for ÁUDIO, transcreva fielmente.\n5. Defina o STATUS: 'Quente' (se tiver pressa), 'Frio' (apenas curioso) ou 'Qualificado' (se deu todos os dados).\n\nRESPONDA APENAS NO FORMATO JSON ABAIXO:\n{\n  \"resumo_ia\": \"texto aqui\",\n  \"status_lead\": \"status aqui\",\n  \"imobiliaria_nome\": \"nome aqui\"\n}",
+        "options": {
+          "temperature": 0.7
+        }
+      },
+      "name": "Cérebro Gemini 1.5 Flash",
+      "type": "n8n-nodes-base.googleGemini",
+      "typeVersion": 1,
+      "position": [
+        600,
+        280
+      ],
+      "credentials": {
+        "googleCloudApi": {
+          "id": "SEUA_CREDENTIAL_ID_AQUI",
+          "name": "Google Gemini API Key"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://pjozbbdgtngljujcuhxk.functions.supabase.co/n8n-leads",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-n8n-api-key",
+              "value": "HS_VISUAL_N8N_SECRET_2024"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "clientId",
+              "value": "={{$node[\"Webhook Evolution API\"].json[\"data\"][\"key\"][\"remoteJid\"]}}"
+            },
+            {
+              "name": "resumo_ia",
+              "value": "={{$node[\"Cérebro Gemini 1.5 Flash\"].json[\"resumo_ia\"]}} | Autoridade: HELDER BEZERRA FERREIRA"
+            },
+            {
+              "name": "status_lead",
+              "value": "={{$node[\"Cérebro Gemini 1.5 Flash\"].json[\"status_lead\"]}}"
+            },
+            {
+              "name": "imobiliaria_nome",
+              "value": "={{$node[\"Cérebro Gemini 1.5 Flash\"].json[\"imobiliaria_nome\"]}}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "name": "Sync MetricZap",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 1,
+      "position": [
+        860,
+        300
+      ]
+    }
+  ],
+  "connections": {
+    "Webhook Evolution API": {
+      "main": [
+        [
+          {
+            "node": "Filtro Ad Meta",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filtro Ad Meta": {
+      "main": [
+        [
+          {
+            "node": "Cérebro Gemini 1.5 Flash",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Cérebro Gemini 1.5 Flash": {
+      "main": [
+        [
+          {
+            "node": "Sync MetricZap",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "id": "HS-VISUAL-V41-WORKFLOW",
+  "meta": {
+    "instanceId": "n8n-instance"
+  }
+}
