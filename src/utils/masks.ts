@@ -44,13 +44,13 @@ export const maskDate = (value: string) => {
 
 export const maskCreci = (value: string) => {
   let v = value.toUpperCase().replace(/[^A-Z0-9]/g, "");
-  if (v.length > 6) {
-    v = v.substring(0, 6);
+  // Permite até 7 dígitos/caracteres (ex: 123.456 ou 1.234.567)
+  if (v.length > 7) {
+    v = v.substring(0, 7);
   }
-  if (v.length > 5) {
-    v = v.replace(/^(\d{2})(\d{3})([A-Z0-9])/, "$1.$2-$3");
-  } else if (v.length > 2) {
-    v = v.replace(/^(\d{2})(\d)/, "$1.$2");
+  
+  if (v.length > 3) {
+    v = v.replace(/^(\d{3})(\d)/, "$1.$2");
   }
   return v;
 };
