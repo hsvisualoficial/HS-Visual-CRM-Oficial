@@ -7,12 +7,14 @@ export const Topbar: React.FC<{ title: string; subtitle?: string }> = ({ title, 
   const [count, setCount] = useState(0);
   const { settings } = useAppContext();
 
+  const initials = settings.agency_name
+    .split(' ').slice(0, 2).map(w => w[0]).join('').toUpperCase() || 'HS';
+
   useEffect(() => {
-    const checkUpcoming = async () => {
+    const check = async () => {
       const today = new Date();
       const in3Days = new Date();
       in3Days.setDate(today.getDate() + 3);
-      
       const { data } = await supabase
         .from('financeiro')
         .select('id')
@@ -20,76 +22,71 @@ export const Topbar: React.FC<{ title: string; subtitle?: string }> = ({ title, 
         .eq('tipo', 'Entrada')
         .gte('data_vencimento', today.toISOString().split('T')[0])
         .lte('data_vencimento', in3Days.toISOString().split('T')[0]);
-      
       setCount(data?.length || 0);
       setHasUpcoming(!!data && data.length > 0);
     };
-
-    checkUpcoming();
-
-    const channel = supabase
-      .channel('topbar_finance')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'financeiro' }, checkUpcoming)
+    check();
+    const ch = supabase.channel('topbar_fin')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'financeiro' }, check)
       .subscribe();
-
-    return () => { supabase.removeChannel(channel); };
+    return () => { supabase.removeChannel(ch); };
   }, []);
 
-  // Iniciais do nome como fallback do avatar
-  const initials = settings.agency_name
-    .split(' ')
-    .slice(0, 2)
-    .map(w => w[0])
-    .join('')
-    .toUpperCase() || 'HS';
-
   return (
-    <header className="flex flex-col md:flex-row md:items-center justify-between gap-6 border-b border-white/5 pb-8 mb-10">
+    <header className="flex flex-col md:flex-row md:items-center justify-between gap-6 pb-8 mb-10"
+      style={{ borderBottom: '1px solid #1F1F1F' }}>
       <div>
-        <h1 className="text-4xl font-black tracking-tight mb-1">{title}</h1>
-        {subtitle && <p className="text-white/40 font-medium uppercase text-[10px] tracking-widest">{subtitle}</p>}
+        <h1 className="text-4xl font-black tracking-tight mb-1"
+          style={{ fontFamily: 'Space Grotesk, sans-serif', color: '#FFFFFF' }}>
+          {title}
+        </h1>
+        {subtitle && (
+          <p className="font-medium uppercase text-[10px] tracking-widest" style={{ color: '#6B7280' }}>
+            {subtitle}
+          </p>
+        )}
       </div>
-      
-      <div className="flex items-center gap-6">
-        {/* Sino de Notificação (Sentinela) */}
+
+      <div className="flex items-center gap-5">
+        {/* Sino de Notificação */}
         <div className="relative group cursor-pointer">
-          <div className="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center hover:border-[#ff00ff]/40 transition-all">
-            <span className={`material-symbols-outlined text-2xl ${hasUpcoming ? 'text-[#ff00ff] animate-swing' : 'text-white/20'}`}>
+          <div className="w-11 h-11 rounded-xl flex items-center justify-center transition-all"
+            style={{ background: '#141414', border: `1px solid ${hasUpcoming ? 'rgba(224,17,131,0.3)' : '#1F1F1F'}` }}>
+            <span className="material-symbols-outlined text-xl"
+              style={{ color: hasUpcoming ? '#E01183' : '#4B5563' }}>
               notifications
             </span>
           </div>
           {hasUpcoming && (
-            <div className="absolute -top-1 -right-1 w-5 h-5 bg-[#ff00ff] border-2 border-[#050505] rounded-full flex items-center justify-center">
-              <span className="text-[10px] font-black text-white">{count}</span>
+            <div className="absolute -top-1 -right-1 w-5 h-5 rounded-full flex items-center justify-center"
+              style={{ background: '#E01183', border: '2px solid #0B0B0B' }}>
+              <span className="text-[9px] font-black text-white">{count}</span>
             </div>
           )}
         </div>
-        
-        <div className="h-10 w-px bg-white/5 hidden md:block"></div>
-        
-        <div className="flex items-center gap-4">
-          {/* Nome da agência do Supabase */}
+
+        <div className="w-px h-8 hidden md:block" style={{ background: '#1F1F1F' }} />
+
+        <div className="flex items-center gap-3">
           <div className="text-right hidden sm:block">
-            <p className="text-[10px] font-black text-white uppercase tracking-tighter leading-none">
+            <p className="text-[10px] font-black text-white uppercase tracking-tighter leading-none"
+              style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
               {settings.agency_name}
             </p>
-            <p className="text-[8px] font-bold text-[#B9FF66] uppercase tracking-widest mt-1">
+            <p className="text-[8px] font-bold uppercase tracking-widest mt-1" style={{ color: '#20C2AE' }}>
               {settings.user_email || 'Administrador'}
             </p>
           </div>
-          {/* Avatar do Supabase ou iniciais */}
-          <div className="w-12 h-12 rounded-full border-2 border-[#B9FF66]/30 overflow-hidden flex items-center justify-center bg-black">
+          {/* Avatar */}
+          <div className="w-11 h-11 rounded-full overflow-hidden flex items-center justify-center"
+            style={{ border: '2px solid rgba(224,17,131,0.25)', background: '#141414' }}>
             {settings.admin_avatar_url ? (
-              <img
-                src={settings.admin_avatar_url}
-                className="w-full h-full object-cover rounded-full"
-                alt="Admin"
-                onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
-              />
+              <img src={settings.admin_avatar_url} className="w-full h-full object-cover rounded-full" alt="Admin"
+                onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} />
             ) : (
-              <div className="w-full h-full bg-[#B9FF66]/10 flex items-center justify-center">
-                <span className="text-[11px] font-black text-[#B9FF66]">{initials}</span>
-              </div>
+              <span className="text-[11px] font-black" style={{ color: '#E01183', fontFamily: 'Space Grotesk, sans-serif' }}>
+                {initials}
+              </span>
             )}
           </div>
         </div>

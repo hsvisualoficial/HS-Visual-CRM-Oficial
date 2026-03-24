@@ -1,70 +1,124 @@
 @import "tailwindcss";
 
+/* ── MetricZap: Neon Noir Executive ── */
+:root {
+  --mg:     #E01183;  /* Magenta HS */
+  --tq:     #20C2AE;  /* Turquesa */
+  --bg:     #0B0B0B;  /* Fundo base */
+  --card:   #141414;  /* Cards */
+  --border: #1F1F1F;  /* Bordas */
+  --text:   #F0F0F0;  /* Corpo */
+}
+
 @layer base {
   body {
-    background-color: #000000;
-    color: #ffffff;
-    font-family: 'Urbanist', sans-serif;
+    background-color: #0B0B0B;
+    color: #F0F0F0;
+    font-family: 'Plus Jakarta Sans', 'Urbanist', sans-serif;
     -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  h1, h2, h3, .font-display {
+    font-family: 'Space Grotesk', 'Urbanist', sans-serif;
+    letter-spacing: -0.02em;
   }
 }
 
 @layer components {
+
+  /* Ícones Material */
   .material-symbols-outlined {
     font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
   }
+
+  /* Superfície glass (MetricZap) */
   .aura-glass {
-    background: rgba(38, 38, 38, 0.4);
+    background: rgba(20, 20, 20, 0.7);
     backdrop-filter: blur(24px);
-    border: 1px solid rgba(255, 255, 255, 0.05);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid #1F1F1F;
   }
+
+  /* Glass card sólido */
+  .glass-card {
+    background: #141414;
+    border: 1px solid #1F1F1F;
+  }
+
+  /* Glows Estratégicos (suaves, não estourados) */
   .glow-primary {
-    box-shadow: 0 0 40px rgba(185, 255, 102, 0.08);
+    box-shadow: 0 0 40px rgba(224, 17, 131, 0.08);
   }
-  .glow-gold {
-    box-shadow: 0 0 30px rgba(255, 215, 0, 0.12);
+  .glow-magenta {
+    box-shadow: 0 4px 20px -5px rgba(224, 17, 131, 0.30);
+  }
+  .glow-turquesa {
+    box-shadow: 0 0 30px rgba(32, 194, 174, 0.10);
   }
   .glow-tertiary {
-    box-shadow: 0 0 30px rgba(102, 255, 237, 0.12);
+    box-shadow: 0 0 30px rgba(32, 194, 174, 0.10);
   }
+  .glow-gold {
+    box-shadow: 0 0 30px rgba(224, 17, 131, 0.10);
+  }
+
+  /* Botão primário (CTA) */
+  .btn-premium-magenta {
+    background: linear-gradient(135deg, #E01183 0%, #FF5E50 100%);
+    box-shadow: 0 4px 20px -5px rgba(224, 17, 131, 0.40);
+    color: #fff;
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+  .btn-premium-magenta:hover {
+    transform: scale(1.02);
+    box-shadow: 0 6px 28px -5px rgba(224, 17, 131, 0.55);
+  }
+
+  /* Borda gradiente magenta */
+  .gradient-border-magenta-subtle {
+    position: relative;
+    background: linear-gradient(#141414, #141414) padding-box,
+                linear-gradient(135deg, rgba(224,17,131,0.4), rgba(32,194,174,0.2)) border-box;
+    border: 1px solid transparent;
+  }
+
+  /* Texto neon sutil */
   .neon-text-primary {
-    text-shadow: 0 0 10px rgba(185, 255, 102, 0.3);
+    text-shadow: 0 0 12px rgba(224, 17, 131, 0.25);
   }
+  .neon-glow-magenta-subtle {
+    text-shadow: 0 0 15px rgba(224, 17, 131, 0.30);
+  }
+  .neon-glow-turquoise-subtle {
+    text-shadow: 0 0 15px rgba(32, 194, 174, 0.25);
+  }
+
+  /* Nav tooltip */
   .nav-tooltip {
     visibility: hidden;
     opacity: 0;
-    transition: opacity 0.3s;
+    transition: opacity 0.25s ease;
   }
   .nav-item:hover .nav-tooltip {
     visibility: visible;
     opacity: 1;
   }
-  .glass-card {
-    background: rgba(22, 22, 22, 0.6);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-  }
-  .neon-glow-magenta-subtle {
-    text-shadow: 0 0 15px rgba(255, 0, 128, 0.4);
-  }
-  .neon-glow-turquoise-subtle {
-    text-shadow: 0 0 15px rgba(0, 255, 209, 0.3);
-  }
-  .btn-premium-magenta {
-    background: linear-gradient(135deg, #FF0080 0%, #D6006B 100%);
-    box-shadow: 0 4px 20px -5px rgba(255, 0, 128, 0.4);
-  }
-  .gradient-border-magenta-subtle {
-    position: relative;
-    background: linear-gradient(#121212, #121212) padding-box,
-                linear-gradient(135deg, rgba(255, 0, 128, 0.5), rgba(112, 0, 255, 0.3)) border-box;
-    border: 1px solid transparent;
-  }
+
+  /* Funil hover */
   .funnel-step {
     transition: transform 0.3s ease;
   }
   .funnel-step:hover {
     transform: translateX(4px);
   }
+
+  /* Scroll discreto */
+  ::-webkit-scrollbar { width: 4px; height: 4px; }
+  ::-webkit-scrollbar-track { background: #0B0B0B; }
+  ::-webkit-scrollbar-thumb { background: #1F1F1F; border-radius: 4px; }
+  ::-webkit-scrollbar-thumb:hover { background: #E01183; }
 }
