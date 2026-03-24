@@ -4,11 +4,14 @@ import { MobileNav } from '../components/MobileNav';
 import { UpcomingAlerts } from '../components/UpcomingAlerts';
 import { Topbar } from '../components/Topbar';
 import { supabase } from '../lib/supabase';
+import { useAppContext } from '../context/AppContext';
+import { DateFilterRack } from '../components/DateFilterRack';
 import { 
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area 
 } from 'recharts';
 
 export const FinancePage: React.FC = () => {
+  const { startDate, endDate } = useAppContext();
   const [metrics, setMetrics] = useState({
     totalRevenue: 0, // Projected Inflow
     totalOutflow: 0,
@@ -26,6 +29,8 @@ export const FinancePage: React.FC = () => {
       const { data, error } = await supabase
         .from('financeiro')
         .select('*, clientes_onboarding(razao_social, telefone)')
+        .gte('data_vencimento', startDate)
+        .lte('data_vencimento', endDate)
         .order('data_vencimento', { ascending: true });
       
       if (error) throw error;
@@ -86,7 +91,7 @@ export const FinancePage: React.FC = () => {
 
   useEffect(() => {
     fetchFinanceData();
-  }, []);
+  }, [startDate, endDate]);
 
   useEffect(() => {
     if (filterType === 'all') {
@@ -114,7 +119,7 @@ export const FinancePage: React.FC = () => {
   };
 
   const handleWhatsApp = (tel: string, name: string, valor: number, venc: string) => {
-    const msg = `Olá ${name}, Helder da HS Visual aqui. Passando para lembrar do vencimento da sua mensalidade de ${new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(valor)} para o dia ${new Date(venc).toLocaleDateString('pt-BR')}. Segue o link para acerto. Qualquer dúvida, estou à disposição!`;
+    const msg = `Olá ${name}, Helder Bezerra Ferreira da HS Visual aqui. Passando para lembrar do vencimento da sua mensalidade de ${new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(valor)} para o dia ${new Date(venc).toLocaleDateString('pt-BR')}. Segue o link para acerto. Qualquer dúvida, estou à disposição!`;
     const cleanTel = tel.replace(/\D/g, '');
     window.open(`https://wa.me/55${cleanTel}?text=${encodeURIComponent(msg)}`, '_blank');
   };
@@ -138,6 +143,9 @@ export const FinancePage: React.FC = () => {
       
       <main className="pt-24 md:pt-20 px-6 max-w-7xl mx-auto space-y-12">
         <Topbar title="Cockpit Financeiro" subtitle="HS Visual • Gestão de Fluxo de Caixa" />
+
+        {/* Régua de Filtros v36 */}
+        <DateFilterRack />
 
         {/* Status Cards - High Contrast */}
         <section className="grid grid-cols-1 md:grid-cols-3 gap-6">

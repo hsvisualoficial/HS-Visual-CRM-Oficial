@@ -22,12 +22,13 @@ interface FinancialSummary {
 const fmt = (val: number) =>
   new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(val);
 
+import { DateFilterRack } from '../components/DateFilterRack';
+
 export const PerformancePage: React.FC = () => {
-  const { settings } = useAppContext();
+  const { settings, startDate, endDate, quickFilter } = useAppContext();
   const [clients, setClients] = useState<Cliente[]>([]);
   const [selectedClient, setSelectedClient] = useState<Cliente | null>(null);
   const [loading, setLoading] = useState(true);
-  const [periodo, setPeriodo] = useState('30');
   const [summary, setSummary] = useState<FinancialSummary>({ faturamento: 0, despesas: 0, lucro: 0 });
   const [loadingSummary, setLoadingSummary] = useState(false);
 
@@ -49,29 +50,26 @@ export const PerformancePage: React.FC = () => {
     fetchClients();
   }, []);
 
-  // Carrega dados financeiros do cliente selecionado + período
+  // Carrega dados financeiros do cliente selecionado + período (v36 Mirroring)
   useEffect(() => {
     if (!selectedClient) { setSummary({ faturamento: 0, despesas: 0, lucro: 0 }); return; }
 
     const fetchSummary = async () => {
       setLoadingSummary(true);
       try {
-        const dias = parseInt(periodo);
-        const from = new Date();
-        from.setDate(from.getDate() - dias);
-        const fromStr = from.toISOString().split('T')[0];
-
         const { data: entradas } = await supabase
           .from('financeiro')
           .select('valor')
           .eq('tipo', 'Entrada')
-          .gte('data_vencimento', fromStr);
+          .gte('data_vencimento', startDate)
+          .lte('data_vencimento', endDate);
 
         const { data: saidas } = await supabase
           .from('financeiro')
           .select('valor')
           .eq('tipo', 'Saída')
-          .gte('data_vencimento', fromStr);
+          .gte('data_vencimento', startDate)
+          .lte('data_vencimento', endDate);
 
         const faturamento = entradas?.reduce((s, r) => s + (Number(r.valor) || 0), 0) ?? 0;
         const despesas = saidas?.reduce((s, r) => s + (Number(r.valor) || 0), 0) ?? 0;
@@ -81,7 +79,7 @@ export const PerformancePage: React.FC = () => {
       }
     };
     fetchSummary();
-  }, [selectedClient, periodo]);
+  }, [selectedClient, startDate, endDate]);
 
   const handleWhatsApp = () => {
     const phone = selectedClient?.telefone?.replace(/\D/g, '') || '';
@@ -89,7 +87,11 @@ export const PerformancePage: React.FC = () => {
     const hora = new Date().getHours();
     const saudacao = hora < 12 ? 'Bom dia' : hora < 18 ? 'Boa tarde' : 'Boa noite';
     const agencia = settings.agency_name || 'HS Visual Intelligence';
-    const msg = `*${saudacao}, ${nome}! 🚀*\n\n*Relatório de Performance — Últimos ${periodo} dias*\n\n📊 *Agência:* ${agencia}\n\n💰 *Faturamento:* ${fmt(summary.faturamento)}\n📉 *Despesas:* ${fmt(summary.despesas)}\n✅ *Lucro Líquido:* ${fmt(summary.lucro)}\n💼 *Investimento:* ${fmt(selectedClient?.valor_investimento || 0)}\n\n_Qualquer dúvida estamos à disposição!_ 🎯`;
+    
+    const periodoFormatado = `de ${new Date(startDate).toLocaleDateString('pt-BR')} até ${new Date(endDate).toLocaleDateString('pt-BR')}`;
+    
+    const msg = `*${saudacao}, ${nome}! 🚀*\n\n*Relatório de Performance v36*\n📅 *Período:* ${periodoFormatado}\n\n📊 *Agência:* ${agencia}\n👤 *Consultor Responsável:* HELDER BEZERRA FERREIRA\n\n💰 *Faturamento:* ${fmt(summary.faturamento)}\n📉 *Despesas:* ${fmt(summary.despesas)}\n✅ *Lucro Líquido:* ${fmt(summary.lucro)}\n💼 *Investimento:* ${fmt(selectedClient?.valor_investimento || 0)}\n\n_Qualquer dúvida estamos à disposição!_ 🎯`;
+    
     if (phone) {
       window.open(`https://wa.me/55${phone}?text=${encodeURIComponent(msg)}`, '_blank');
     } else {
@@ -97,34 +99,15 @@ export const PerformancePage: React.FC = () => {
     }
   };
 
-  const periodoBtns = [
-    { label: '7 dias', value: '7' },
-    { label: '15 dias', value: '15' },
-    { label: '30 dias', value: '30' },
-    { label: '90 dias', value: '90' },
-  ];
+
 
   return (
     <PageContainer>
       <Topbar title="Performance Master" subtitle="Relatório de Resultados por Cliente" />
 
       <div className="space-y-8">
-        {/* Filtros de Período */}
-        <div className="flex items-center gap-2 flex-wrap">
-          {periodoBtns.map(p => (
-            <button
-              key={p.value}
-              onClick={() => setPeriodo(p.value)}
-              className={`px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest transition-all ${
-                periodo === p.value
-                  ? 'bg-[#ff00ff] text-white shadow-[0_0_15px_rgba(255,0,255,0.3)]'
-                  : 'bg-white/5 text-white/40 hover:text-white/70'
-              }`}
-            >
-              {p.label}
-            </button>
-          ))}
-        </div>
+        {/* Régua de Filtros v36 */}
+        <DateFilterRack />
 
         {/* Seletor de Cliente */}
         <div className="aura-glass rounded-2xl p-6 border border-white/5">
@@ -181,7 +164,7 @@ export const PerformancePage: React.FC = () => {
                 </p>
               )}
               <p className="text-xs" style={{ color: card.color }}>
-                {card.value === 0 ? 'Sem lançamentos no período' : `Últimos ${periodo} dias`}
+                {card.value === 0 ? 'Sem lançamentos no período' : `${new Date(startDate).toLocaleDateString()} — ${new Date(endDate).toLocaleDateString()}`}
               </p>
             </div>
           ))}
@@ -205,7 +188,7 @@ export const PerformancePage: React.FC = () => {
           <p className="text-[10px] text-white/30 uppercase tracking-widest font-bold">Análise Estratégica IA</p>
           <div className="space-y-5">
             {[
-              { icon: '✅', color: '#B9FF66', label: 'Saúde Financeira', text: summary.lucro > 0 ? `Resultado positivo de ${fmt(summary.lucro)} nos últimos ${periodo} dias. Continue monitorando.` : summary.lucro === 0 ? 'Sem lançamentos no período. Cadastre entrada e saídas no Financeiro.' : `Resultado negativo de ${fmt(Math.abs(summary.lucro))}. Revise as despesas do período.` },
+              { icon: '✅', color: '#B9FF66', label: 'Saúde Financeira', text: summary.lucro > 0 ? `Resultado positivo de ${fmt(summary.lucro)} no período selecionado. Continue monitorando.` : summary.lucro === 0 ? 'Sem lançamentos no período. Cadastre entrada e saídas no Financeiro.' : `Resultado negativo de ${fmt(Math.abs(summary.lucro))}. Revise as despesas do período.` },
               { icon: '📈', color: '#66FFED', label: 'Próximos Passos', text: 'Cadastre os investimentos em mídia na aba Financeiro para que o sistema calcule o ROI automaticamente.' },
               { icon: '🚀', color: '#ff00ff', label: 'Meta de Crescimento', text: 'Acompanhe o crescimento mensal pela Home. O sistema atualiza em tempo real ao registrar novos lançamentos.' },
             ].map(a => (

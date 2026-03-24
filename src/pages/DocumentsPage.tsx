@@ -112,7 +112,7 @@ export const DocumentsPage: React.FC = () => {
             <div className="space-y-8 text-[13px]">
               <h3 className="text-lg font-black uppercase border-l-4 border-slate-900 pl-4 mb-8">1. DAS PARTES</h3>
               <p>
-                <strong>CONTRATADA:</strong> {config?.agency_name}, com sede administrativa, inscrita no CNPJ sob o nº {config?.cnpj}, representada neste ato por Helder Silva.
+                <strong>CONTRATADA:</strong> {config?.agency_name}, com sede administrativa, inscrita no CNPJ sob o nº {config?.cnpj}, representada neste ato por Helder Bezerra Ferreira.
               </p>
               <p>
                 <strong>CONTRATANTE:</strong> {data.razao_social}, residente ou sediado em {data.logradouro}, {data.numero}, {data.bairro}, {data.cidade}/{data.uf}, inscrito no CPF/CNPJ sob o nº {data.cnpj_cpf}.

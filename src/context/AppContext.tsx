@@ -18,6 +18,11 @@ interface AppContextValue {
   settings: AppSettings;
   loading: boolean;
   refresh: () => Promise<void>;
+  // Filtros Temporais Avançados (v36)
+  startDate: string;
+  endDate: string;
+  quickFilter: 'week' | 'month' | 'year' | 'period';
+  setGlobalPeriod: (start: string, end: string, filter: 'week' | 'month' | 'year' | 'period') => void;
 }
 
 // ─── Defaults ─────────────────────────────────────────
@@ -38,6 +43,10 @@ const AppContext = createContext<AppContextValue>({
   settings: DEFAULT_SETTINGS,
   loading: true,
   refresh: async () => {},
+  startDate: new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0],
+  endDate: new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0).toISOString().split('T')[0],
+  quickFilter: 'month',
+  setGlobalPeriod: () => {},
 });
 
 // ─── Hook ─────────────────────────────────────────────
@@ -49,6 +58,23 @@ export function useAppContext() {
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [settings, setSettings] = useState<AppSettings>(DEFAULT_SETTINGS);
   const [loading, setLoading] = useState(true);
+
+  // Filtros Temporais Avançados (v36)
+  const [quickFilter, setQuickFilter] = useState<'week' | 'month' | 'year' | 'period'>('month');
+  const [startDate, setStartDate] = useState(() => {
+    const d = new Date();
+    return new Date(d.getFullYear(), d.getMonth(), 1).toISOString().split('T')[0];
+  });
+  const [endDate, setEndDate] = useState(() => {
+    const d = new Date();
+    return new Date(d.getFullYear(), d.getMonth() + 1, 0).toISOString().split('T')[0];
+  });
+
+  const setGlobalPeriod = useCallback((start: string, end: string, filter: 'week' | 'month' | 'year' | 'period') => {
+    setStartDate(start);
+    setEndDate(end);
+    setQuickFilter(filter);
+  }, []);
 
   const fetch = useCallback(async () => {
     try {
@@ -111,7 +137,15 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   }, [settings.agency_logo_url]);
 
   return (
-    <AppContext.Provider value={{ settings, loading, refresh: fetch }}>
+    <AppContext.Provider value={{ 
+      settings, 
+      loading, 
+      refresh: fetch,
+      startDate,
+      endDate,
+      quickFilter,
+      setGlobalPeriod
+    }}>
       {children}
     </AppContext.Provider>
   );
