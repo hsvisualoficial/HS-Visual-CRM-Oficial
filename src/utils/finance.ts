@@ -22,10 +22,18 @@ export const generateInstallments = async ({
     ? parseFloat(valor.replace(/[^\d,]/g, '').replace(',', '.')) || 0 
     : valor;
   
-  // Usar data de início ou data atual como fallback
-  const startDate = dataInicio ? new Date(dataInicio) : new Date();
+  // Helper v45: Parsing seguro (Data Local sem shift UTC)
+  const parseSafeDate = (dateStr: string) => {
+    if (!dateStr) return new Date();
+    const [year, month, day] = dateStr.split('-').map(Number);
+    return new Date(year, month - 1, day || 1);
+  };
+
+  const startDate = parseSafeDate(dataInicio);
   const diaBase = typeof vencimento === 'string' ? parseInt(vencimento) || startDate.getDate() : vencimento;
   const now = new Date();
+  // Zerar horas para comparação justa de "Passado"
+  now.setHours(0, 0, 0, 0);
 
   const parcelas = [];
   for (let i = 0; i < duracaoTotal; i++) {

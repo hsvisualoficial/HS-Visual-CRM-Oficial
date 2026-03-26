@@ -39,6 +39,7 @@ export const ClientsPage: React.FC = () => {
       const { data, error } = await supabase
         .from('clientes_onboarding')
         .select('*')
+        .neq('status', 'excluído') // Filtro v43: Soft Delete
         .order('created_at', { ascending: false });
 
       if (error) throw error;
@@ -89,16 +90,19 @@ export const ClientsPage: React.FC = () => {
   const confirmDelete = async () => {
     if (!deletingClient) return;
     try {
+      // v43: Soft Delete em vez de remoção física
       const { error } = await supabase
         .from('clientes_onboarding')
-        .delete()
+        .update({ status: 'excluído' })
         .eq('id', deletingClient.id);
+        
       if (error) throw error;
+      
       setDeletingClient(null);
       fetchClients();
     } catch (err) {
-      console.error('Erro ao excluir cliente:', err);
-      alert('Erro ao excluir cliente. Verifique permissões.');
+      console.error('Erro ao excluir (Soft Delete):', err);
+      alert('Erro ao excluir cliente. Verifique permissões de rede.');
     }
   };
 
